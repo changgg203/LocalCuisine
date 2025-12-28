@@ -1,0 +1,26 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/favoriteFragment">
+
+    <fragment
+        android:id="@+id/favoriteFragment"
+        android:name="com.example.localcuisine.ui.favorite.FavoriteFragment">
+        <action
+            android:id="@+id/action_home_to_detail"
+            app:destination="@id/foodDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/foodDetailFragment"
+        android:name="com.example.localcuisine.ui.detail.FoodDetailFragment"
+        android:label="Chi tiết món ăn">
+
+        <argument
+            android:name="food_id"
+            app:argType="integer" />
+    </fragment>
+</navigation>

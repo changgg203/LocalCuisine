@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">LocalCuisine</string>
+    <string name="title_home">Local Cuisine</string>
+    <string name="title_recommend">Recommend</string>
+    <string name="title_map">Bản đồ</string>
+    <string name="title_notifications">Thông báo</string>
+    <string name="title_favorite">Yêu thích</string>
+    <string name="title_profile">Hồ sơ</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

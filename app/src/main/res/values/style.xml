@@ -1,0 +1,29 @@
+<resources>
+
+    <style name="Widget.LocalCuisine.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="subtitleTextColor">@color/text_secondary</item>
+        <item name="backgroundColor">@color/bg</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.LocalCuisine.SearchField" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_card</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_card</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_card</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_card</item>
+        <item name="boxStrokeColor">@color/divider</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+    </style>
+
+    <style name="Widget.LocalCuisine.ChipFilter" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipCornerRadius">@dimen/radius_chip</item>
+        <item name="chipBackgroundColor">@color/surface</item>
+        <item name="chipStrokeColor">@color/divider</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+
+</resources>

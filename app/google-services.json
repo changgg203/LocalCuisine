@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "840554855688",
+    "project_id": "localcuisine-da608",
+    "storage_bucket": "localcuisine-da608.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840554855688:android:d286a72c4656299c1d00bd",
+        "android_client_info": {
+          "package_name": "com.example.localcuisine"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAt_AaXdW2LPL1x4Q2HbTydK4m_5Lv8M0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
