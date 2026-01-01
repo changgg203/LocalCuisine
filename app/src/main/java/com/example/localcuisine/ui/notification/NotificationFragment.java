@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.NotificationRepository;
-import com.example.localcuisine.data.remote.FirestoreNotification;
+import com.example.localcuisine.data.remote.notification.FirestoreNotification;
+import com.example.localcuisine.data.repository.NotificationRepository;
 
 import java.util.ArrayList;
 import java.util.List;

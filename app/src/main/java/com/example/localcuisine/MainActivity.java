@@ -6,9 +6,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.localcuisine.data.AppDatabase;
-import com.example.localcuisine.data.FoodRepository;
-import com.example.localcuisine.data.SessionManager;
+import com.example.localcuisine.data.auth.SessionStore;
+import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.databinding.ActivityMainBinding;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.ui.auth.LoginActivity;
@@ -30,16 +29,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SessionManager session = new SessionManager(this);
+        SessionStore session = new SessionStore(this);
         if (!session.isLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
+        if (session.getUserRegion() == null) {
+            session.setUserRegion(com.example.localcuisine.model.Region.ALL);
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbarHome);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         FoodRepository.ensureLoaded(new FoodRepository.LoadCallback() {
             @Override
@@ -97,20 +102,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateNotificationBadge() {
-        String userId = new SessionManager(this).getUserId();
+        String userId = new SessionStore(this).getUserId();
 
         BadgeDrawable badge =
                 binding.navView.getOrCreateBadge(R.id.navigation_notifications);
 
-        new Thread(() -> {
-            int count = AppDatabase.getInstance(this)
-                    .notificationDao()
-                    .getUnreadCount(userId);
-
-            runOnUiThread(() -> {
-                badge.setVisible(count > 0);
-                badge.setNumber(count);
-            });
-        }).start();
     }
 }

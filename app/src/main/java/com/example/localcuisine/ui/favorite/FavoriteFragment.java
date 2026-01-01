@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.FoodRepository;
 import com.example.localcuisine.data.favorite.FavoriteRepository;
 import com.example.localcuisine.data.favorite.FirestoreFavoriteRepository;
+import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.ui.home.FoodAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,7 +59,8 @@ public class FavoriteFragment extends Fragment {
 
         adapter = new FoodAdapter(
                 new ArrayList<>(),
-                foodId -> ((MainActivity) requireActivity()).openFoodDetail(foodId)
+                foodId -> ((MainActivity) requireActivity()).openFoodDetail(foodId),
+                null
         );
         recyclerView.setAdapter(adapter);
 

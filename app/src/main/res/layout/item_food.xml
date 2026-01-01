@@ -47,6 +47,18 @@
                 android:text="Miền Bắc"
                 android:textColor="#EDEDED"
                 android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/txtExplain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:paddingTop="2dp"
+                android:text="Phù hợp buổi sáng • Món dễ ăn"
+                android:textColor="#DDDDDD"
+                android:textSize="12sp" />
+
         </LinearLayout>
 
     </FrameLayout>

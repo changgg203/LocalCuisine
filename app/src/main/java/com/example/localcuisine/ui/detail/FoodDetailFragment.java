@@ -1,6 +1,8 @@
 package com.example.localcuisine.ui.detail;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,13 +23,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.FoodRepository;
-import com.example.localcuisine.data.NotificationHelper;
-import com.example.localcuisine.data.SessionManager;
+import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.data.favorite.FavoriteRepository;
 import com.example.localcuisine.data.favorite.FirestoreFavoriteRepository;
-import com.example.localcuisine.data.review.ReviewDataSource;
-import com.example.localcuisine.data.review.ReviewRepository;
+import com.example.localcuisine.data.recommend.signal.PreferenceTracker;
+import com.example.localcuisine.data.remote.notification.NotificationHelper;
+import com.example.localcuisine.data.remote.review.ReviewDataSource;
+import com.example.localcuisine.data.remote.review.ReviewRepository;
+import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.model.Reply;
@@ -46,7 +49,7 @@ public class FoodDetailFragment extends Fragment {
 
     private final List<Review> reviewList = new ArrayList<>();
     private int foodId;
-    private SessionManager sessionManager;
+    private SessionStore sessionManager;
     private ReviewRepository reviewRepo;
     private FavoriteRepository favoriteRepo;
     private String uid;
@@ -77,7 +80,7 @@ public class FoodDetailFragment extends Fragment {
     ) {
         View view = inflater.inflate(R.layout.fragment_food_detail, container, false);
 
-        sessionManager = new SessionManager(requireContext());
+        sessionManager = new SessionStore(requireContext());
         reviewRepo = ReviewRepository.getInstance(requireContext());
         favoriteRepo = new FirestoreFavoriteRepository();
 
@@ -171,8 +174,37 @@ public class FoodDetailFragment extends Fragment {
         txtRateHint.setOnClickListener(v -> showReviewDialog());
         btnReview.setOnClickListener(v -> showReviewDialog());
 
+        Button btnMap = view.findViewById(R.id.btnMap);
+
+        btnMap.setOnClickListener(v -> openGoogleMaps(food));
+
         loadReviews();
     }
+
+
+    private void openGoogleMaps(@NonNull Food food) {
+        String keyword = food.getName();
+
+        if (food.getLocation() != null && !food.getLocation().isEmpty()) {
+            keyword += " " + food.getLocation();
+        }
+
+        Uri uri = Uri.parse("geo:0,0?q=" + Uri.encode(keyword));
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        intent.setPackage("com.google.android.apps.maps");
+
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            // fallback nếu máy không có Google Maps
+            Intent webIntent = new Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(keyword))
+            );
+            startActivity(webIntent);
+        }
+    }
+
 
     // ===================== FAVORITE =====================
 
@@ -203,6 +235,10 @@ public class FoodDetailFragment extends Fragment {
                     favoriteRepo.addFavorite(uid, foodId, new FavoriteRepository.ActionCallback() {
                         @Override
                         public void onSuccess() {
+                            Food food = FoodRepository.getFoodById(foodId);
+                            if (food != null) {
+                                PreferenceTracker.onFavorite(requireContext(), food);
+                            }
                             updateFavoriteButton();
                         }
 
@@ -211,6 +247,7 @@ public class FoodDetailFragment extends Fragment {
                             e.printStackTrace();
                         }
                     });
+
                 }
             }
 
@@ -399,7 +436,8 @@ public class FoodDetailFragment extends Fragment {
         recyclerRecommend.setAdapter(
                 new FoodAdapter(
                         recommendList,
-                        id -> ((MainActivity) requireActivity()).openFoodDetail(id)
+                        id -> ((MainActivity) requireActivity()).openFoodDetail(id),
+                        null
                 )
         );
     }

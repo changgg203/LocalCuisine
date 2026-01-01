@@ -15,7 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.FoodRepository;
+import com.example.localcuisine.data.auth.SessionStore;
+import com.example.localcuisine.data.recommend.core.RecommendationContext;
+import com.example.localcuisine.data.recommend.core.RecommendationResult;
+import com.example.localcuisine.data.recommend.core.RecommenderEngine;
+import com.example.localcuisine.data.recommend.signal.PreferenceTracker;
+import com.example.localcuisine.data.repository.FoodRepository;
+import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.ui.common.GridSpacingItemDecoration;
@@ -23,12 +29,17 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 public class HomeFragment extends Fragment {
 
+    private final Map<Integer, RecommendationResult> explainMap = new HashMap<>();
     private FoodAdapter adapter;
     private ArrayAdapter<String> suggestAdapter;
+    private RecommenderEngine recommenderEngine;
 
     @Nullable
     @Override
@@ -46,10 +57,24 @@ public class HomeFragment extends Fragment {
 
         int spacing = (int) (getResources().getDisplayMetrics().density * 6);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing));
+        recommenderEngine = new RecommenderEngine();
 
-        adapter = new FoodAdapter(new ArrayList<>(), foodId ->
-                ((MainActivity) requireActivity()).openFoodDetail(foodId)
+        adapter = new FoodAdapter(
+                new ArrayList<>(),
+                foodId -> {
+                    Food f = FoodRepository.getFoodById(foodId);
+                    if (f != null) {
+                        PreferenceTracker.onFoodClick(requireContext(), f);
+                    }
+                    ((MainActivity) requireActivity()).openFoodDetail(foodId);
+                },
+                foodId -> {
+                    RecommendationResult r = explainMap.get(foodId);
+                    return r != null ? r.getReasonText() : null;
+                }
         );
+
+
         recyclerView.setAdapter(adapter);
 
         // ===== Search =====
@@ -97,7 +122,9 @@ public class HomeFragment extends Fragment {
             public void onSuccess(@NonNull List<Food> loadedFoods) {
                 if (!isAdded()) return;
 
-                adapter.setData(loadedFoods);
+                List<Food> recommendedFoods = recommendFoods(loadedFoods);
+                adapter.setData(recommendedFoods);
+
 
                 suggestions.clear();
                 for (Food food : loadedFoods) {
@@ -124,4 +151,36 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
+
+    private List<Food> recommendFoods(List<Food> foods) {
+        SessionStore sm = new SessionStore(requireContext());
+
+        UserProfile user = new UserProfile();
+        user.region = sm.getUserRegion();
+        user.loggedIn = sm.isLoggedIn();
+
+        user.preferredTypes.addAll(
+                PreferenceTracker.getPreferredTypes(requireContext())
+        );
+
+
+        RecommendationContext ctx = RecommendationContext.nowDefault();
+        ctx.intent = "explore";
+
+        List<RecommendationResult> results =
+                recommenderEngine.recommend(user, foods, ctx, 1000);
+
+        explainMap.clear();
+        for (RecommendationResult r : results) {
+            explainMap.put(r.food.getId(), r);
+        }
+
+        List<Food> out = new ArrayList<>();
+        for (RecommendationResult r : results) {
+            out.add(r.food);
+        }
+        return out;
+    }
+
+
 }

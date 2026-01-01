@@ -43,7 +43,8 @@ public enum FoodType {
     STREET_FOOD("Món đường phố"),
     FESTIVE("Dịp lễ"),
     FAMILY("Bữa cơm gia đình"),
-    LOCAL_SPECIALTY("Đặc sản địa phương");
+    LOCAL_SPECIALTY("Đặc sản địa phương"),
+    OTHER("Khac");
 
     private final String displayName;
 

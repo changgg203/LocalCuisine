@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.AuthRepository;
+import com.example.localcuisine.data.auth.AuthRepository;
 
 public class LoginActivity extends AppCompatActivity {
 

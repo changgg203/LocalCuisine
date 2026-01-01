@@ -25,10 +25,17 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
     private final List<Food> displayList;
     private final OnFoodClickListener listener;
 
-    public FoodAdapter(List<Food> foodList, OnFoodClickListener listener) {
+    private final ExplainProvider explainProvider;
+
+    public FoodAdapter(
+            List<Food> foodList,
+            OnFoodClickListener listener,
+            ExplainProvider explainProvider
+    ) {
         this.originalList = new ArrayList<>(foodList);
         this.displayList = new ArrayList<>(foodList);
         this.listener = listener;
+        this.explainProvider = explainProvider;
     }
 
     @NonNull
@@ -79,14 +86,23 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
                 listener.onFoodClick(food.getId());
             }
         });
+
+        String explain = explainProvider != null
+                ? explainProvider.getExplainText(food.getId())
+                : null;
+
+        if (explain != null && !explain.isEmpty()) {
+            holder.txtExplain.setVisibility(View.VISIBLE);
+            holder.txtExplain.setText(explain);
+        } else {
+            holder.txtExplain.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
         return displayList.size();
     }
-
-    // ===================== FILTER =====================
 
     @SuppressLint("NotifyDataSetChanged")
     public void filterByTypes(List<FoodType> types) {
@@ -129,8 +145,6 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         notifyDataSetChanged();
     }
 
-    // ===================== DATA =====================
-
     @SuppressLint("NotifyDataSetChanged")
     public void setData(List<Food> newData) {
         originalList.clear();
@@ -142,7 +156,11 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         notifyDataSetChanged();
     }
 
-    // ===================== VIEW HOLDER =====================
+
+    public interface ExplainProvider {
+        String getExplainText(int foodId);
+    }
+
 
     public interface OnFoodClickListener {
         void onFoodClick(int foodId);
@@ -153,12 +171,15 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         ImageView imgFood;
         TextView txtFoodName;
         TextView txtFoodRegion;
+        TextView txtExplain;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
             imgFood = itemView.findViewById(R.id.imgFood);
             txtFoodName = itemView.findViewById(R.id.txtFoodName);
             txtFoodRegion = itemView.findViewById(R.id.txtFoodRegion);
+            txtExplain = itemView.findViewById(R.id.txtExplain);
         }
     }
+
 }

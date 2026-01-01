@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.remote.FirestoreNotification;
+import com.example.localcuisine.data.remote.notification.FirestoreNotification;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class NotificationAdapter
             int position
     ) {
         FirestoreNotification n = list.get(position);
-        
+
         if (n == null) return;
 
         h.txtTitle.setText(

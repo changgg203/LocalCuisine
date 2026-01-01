@@ -115,6 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="❤️ Yêu thích"
+                    android:textSize="14sp"
                     app:cornerRadius="14dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -125,9 +126,21 @@
                     android:layout_marginStart="@dimen/space_s"
                     android:layout_weight="1"
                     android:text="✍️ Đánh giá"
+                    android:textSize="14sp"
                     app:cornerRadius="14dp" />
 
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMap"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="📍 Xem trên bản đồ"
+                android:textSize="14sp"
+                app:cornerRadius="14dp" />
+
 
             <TextView
                 android:id="@+id/txtReviewTitle"

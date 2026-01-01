@@ -9,7 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.localcuisine.R;
-import com.example.localcuisine.data.AuthRepository;
+import com.example.localcuisine.data.auth.AuthRepository;
 
 public class RegisterActivity extends AppCompatActivity {
 
