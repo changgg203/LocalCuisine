@@ -61,7 +61,7 @@ public class FirestoreReviewDataSource implements ReviewDataSource {
                 .collection("reviews")
                 .document(review.getId())
                 .collection("replies")
-                .orderBy("createdAt", Query.Direction.ASCENDING)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(snapshots -> {
                     List<Reply> replies = new ArrayList<>();
@@ -118,7 +118,11 @@ public class FirestoreReviewDataSource implements ReviewDataSource {
                 .addOnSuccessListener(doc -> {
                     // 🔔 sinh notification cho author của review
                     if (!reply.getAuthorId().equals(reviewAuthorId)) {
-                        createNotificationForReviewOwner(reviewAuthorId);
+                        createNotificationForReviewOwner(
+                                reviewAuthorId,
+                                foodId,
+                                reply.getContent()
+                        );
                     }
                     cb.onSuccess();
                 })
@@ -128,17 +132,25 @@ public class FirestoreReviewDataSource implements ReviewDataSource {
 
     // ================= NOTIFICATION =================
 
-    private void createNotificationForReviewOwner(String targetUserId) {
+    private void createNotificationForReviewOwner(
+            String targetUserId,
+            int foodId,
+            String replyContent
+    ) {
         Map<String, Object> noti = new HashMap<>();
+
+        noti.put("type", "REPLY");
+        noti.put("foodId", foodId);
         noti.put("title", "Phản hồi mới");
-        noti.put("message", "Có người phản hồi đánh giá của bạn");
+        noti.put("content", replyContent);
+        noti.put("isRead", false);
         noti.put("createdAt", FieldValue.serverTimestamp());
-        noti.put("read", false);
 
         db.collection("users")
                 .document(targetUserId)
                 .collection("notifications")
                 .add(noti);
     }
+
 
 }

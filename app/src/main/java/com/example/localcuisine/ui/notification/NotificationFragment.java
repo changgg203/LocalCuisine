@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.remote.notification.FirestoreNotification;
+import com.example.localcuisine.data.remote.notification.NotificationTextBuilder;
 import com.example.localcuisine.data.repository.NotificationRepository;
 
 import java.util.ArrayList;
@@ -94,9 +95,51 @@ public class NotificationFragment extends Fragment {
                     .updateNotificationBadge();
         }
 
-        if (n.getFoodId() > 0) {
-            ((MainActivity) requireActivity())
-                    .openFoodDetail(n.getFoodId());
+        MainActivity main = (MainActivity) requireActivity();
+
+        String type = n.getType();
+        if (type == null) {
+            type = "REPLY";
+        }
+
+        switch (type) {
+            case "REPLY":
+            case "REVIEW":
+                if (n.getFoodId() > 0) {
+                    main.openFoodDetail(n.getFoodId());
+                } else {
+                    main.openNotificationDetail(
+                            NotificationTextBuilder.buildTitle(n),
+                            buildDetailContent(n)
+                    );
+                }
+                break;
+
+            case "FAVORITE":
+            case "UNKNOWN":
+            default:
+                main.openNotificationDetail(
+                        NotificationTextBuilder.buildTitle(n),
+                        buildDetailContent(n)
+                );
+                break;
         }
     }
+
+    private String buildDetailContent(FirestoreNotification n) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(NotificationTextBuilder.buildContent(n));
+
+        // Nếu có raw content (reply thật) → show như quote
+        if (n.getContent() != null && !n.getContent().isEmpty()) {
+            sb.append("\n\n\"");
+            sb.append(n.getContent());
+            sb.append("\"");
+        }
+
+        return sb.toString();
+    }
+
+
 }

@@ -14,6 +14,7 @@ import com.example.localcuisine.ui.auth.LoginActivity;
 import com.example.localcuisine.ui.detail.FoodDetailFragment;
 import com.example.localcuisine.ui.favorite.FavoriteFragment;
 import com.example.localcuisine.ui.home.HomeFragment;
+import com.example.localcuisine.ui.notification.NotificationDetailFragment;
 import com.example.localcuisine.ui.notification.NotificationFragment;
 import com.example.localcuisine.ui.profile.ProfileFragment;
 import com.google.android.material.badge.BadgeDrawable;
@@ -108,4 +109,15 @@ public class MainActivity extends AppCompatActivity {
                 binding.navView.getOrCreateBadge(R.id.navigation_notifications);
 
     }
+
+    public void openNotificationDetail(String title, String content) {
+        Fragment f = NotificationDetailFragment.newInstance(title, content);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_container, f)
+                .addToBackStack(null)
+                .commit();
+    }
+
 }

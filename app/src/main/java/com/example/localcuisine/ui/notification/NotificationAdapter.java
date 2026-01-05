@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.remote.notification.FirestoreNotification;
+import com.example.localcuisine.data.remote.notification.NotificationTextBuilder;
 
 import java.util.List;
 
@@ -48,10 +49,11 @@ public class NotificationAdapter
         if (n == null) return;
 
         h.txtTitle.setText(
-                n.getTitle() != null ? n.getTitle() : ""
+                NotificationTextBuilder.buildTitle(n)
         );
+
         h.txtContent.setText(
-                n.getContent() != null ? n.getContent() : ""
+                NotificationTextBuilder.buildContent(n)
         );
 
         h.txtTime.setText(
