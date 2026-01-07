@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="4dp"
-        android:text="Comment"
+        android:text=""
         android:textSize="14sp" />
 
     <!-- Replies container -->
@@ -40,9 +40,8 @@
         android:clickable="true"
         android:focusable="true"
         android:paddingTop="6dp"
-        android:text="Phản hồi"
+        android:text=""
         android:textColor="?attr/colorPrimary"
         android:textSize="12sp" />
-
 
 </LinearLayout>

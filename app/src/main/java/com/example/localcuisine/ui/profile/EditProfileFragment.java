@@ -14,7 +14,10 @@ import androidx.fragment.app.Fragment;
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.repository.UserRepository;
 import com.example.localcuisine.data.user.UserProfile;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class EditProfileFragment extends Fragment {
 
@@ -43,6 +46,28 @@ public class EditProfileFragment extends Fragment {
 
         userRepo = new UserRepository();
 
+        TextInputLayout tilDisplayName = view.findViewById(R.id.tilDisplayName);
+        TextInputLayout tilEmail = view.findViewById(R.id.tilEmail);
+        TextInputLayout tilPhone = view.findViewById(R.id.tilPhone);
+        TextInputLayout tilBio = view.findViewById(R.id.tilBio);
+
+        tilDisplayName.setHint(
+                UiText.t(UiTextKey.EDIT_PROFILE_HINT_NAME)
+        );
+        tilEmail.setHint(
+                UiText.t(UiTextKey.EDIT_PROFILE_HINT_EMAIL)
+        );
+        tilPhone.setHint(
+                UiText.t(UiTextKey.EDIT_PROFILE_HINT_PHONE)
+        );
+        tilBio.setHint(
+                UiText.t(UiTextKey.EDIT_PROFILE_HINT_BIO)
+        );
+        if (btnSave instanceof android.widget.Button) {
+            ((android.widget.Button) btnSave)
+                    .setText(UiText.t(UiTextKey.EDIT_PROFILE_SAVE));
+        }
+
         btnSave.setOnClickListener(v -> onSave());
 
         loadProfile();
@@ -50,7 +75,6 @@ public class EditProfileFragment extends Fragment {
         return view;
     }
 
-    // ===================== LOAD =====================
 
     private void loadProfile() {
         setLoading(true);
@@ -64,8 +88,9 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onNotFound() {
-                // Profile chưa tồn tại → dùng fallback
-                edtDisplayName.setText("Người dùng");
+                edtDisplayName.setText(
+                        UiText.t(UiTextKey.EDIT_PROFILE_NAME_FALLBACK)
+                );
                 edtEmail.setText("");
                 edtPhone.setText("");
                 edtBio.setText("");
@@ -75,9 +100,11 @@ public class EditProfileFragment extends Fragment {
             @Override
             public void onError(Exception e) {
                 setLoading(false);
-                Toast.makeText(requireContext(),
-                        "Không thể tải hồ sơ",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        requireContext(),
+                        UiText.t(UiTextKey.EDIT_PROFILE_LOAD_ERROR),
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
     }
@@ -97,7 +124,6 @@ public class EditProfileFragment extends Fragment {
         );
     }
 
-    // ===================== SAVE =====================
 
     private void onSave() {
         String name = edtDisplayName.getText() != null
@@ -113,7 +139,9 @@ public class EditProfileFragment extends Fragment {
                 : "";
 
         if (TextUtils.isEmpty(name)) {
-            edtDisplayName.setError("Vui lòng nhập họ tên");
+            edtDisplayName.setError(
+                    UiText.t(UiTextKey.EDIT_PROFILE_NAME_REQUIRED)
+            );
             return;
         }
 
@@ -123,16 +151,18 @@ public class EditProfileFragment extends Fragment {
                 name,
                 phone,
                 bio,
-                "vi",
+                new com.example.localcuisine.ui.i18n.LocaleStore(requireContext())
+                        .getLanguage(),
                 new UserRepository.SaveProfileCallback() {
                     @Override
                     public void onSuccess() {
                         setLoading(false);
-                        Toast.makeText(requireContext(),
-                                "Đã lưu hồ sơ",
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                requireContext(),
+                                UiText.t(UiTextKey.EDIT_PROFILE_SAVE_SUCCESS),
+                                Toast.LENGTH_SHORT
+                        ).show();
 
-                        // Quay lại màn trước
                         requireActivity()
                                 .getSupportFragmentManager()
                                 .popBackStack();
@@ -141,15 +171,15 @@ public class EditProfileFragment extends Fragment {
                     @Override
                     public void onError(Exception e) {
                         setLoading(false);
-                        Toast.makeText(requireContext(),
-                                "Lưu hồ sơ thất bại",
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                requireContext(),
+                                UiText.t(UiTextKey.EDIT_PROFILE_SAVE_ERROR),
+                                Toast.LENGTH_SHORT
+                        ).show();
                     }
                 }
         );
     }
-
-    // ===================== UI STATE =====================
 
     private void setLoading(boolean loading) {
         btnSave.setEnabled(!loading);

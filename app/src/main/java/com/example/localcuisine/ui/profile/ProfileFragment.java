@@ -18,6 +18,9 @@ import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.data.repository.UserRepository;
 import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.ui.auth.LoginActivity;
+import com.example.localcuisine.ui.i18n.LocaleStore;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -37,33 +40,31 @@ public class ProfileFragment extends Fragment {
     ) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        // ===== Bind views =====
         tvUsername = view.findViewById(R.id.tvUsername);
         tvDisplayName = view.findViewById(R.id.tvDisplayName);
 
         Button btnLogout = view.findViewById(R.id.btnLogout);
         Button btnEditProfile = view.findViewById(R.id.btnEditProfile);
         Button btnChangeLanguage = view.findViewById(R.id.btnChangeLanguage);
+        btnEditProfile.setText(UiText.t(UiTextKey.PROFILE_EDIT));
+        btnChangeLanguage.setText(UiText.t(UiTextKey.PROFILE_CHANGE_LANGUAGE));
+        btnLogout.setText(UiText.t(UiTextKey.PROFILE_LOGOUT));
 
         userRepo = new UserRepository();
 
         // ===== Edit Profile =====
-        btnEditProfile.setOnClickListener(v -> {
-            requireActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.nav_container, new EditProfileFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        btnEditProfile.setOnClickListener(v ->
+                requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_container, new EditProfileFragment())
+                        .addToBackStack(null)
+                        .commit()
+        );
 
-        // ===== Change Language (placeholder) =====
-        btnChangeLanguage.setOnClickListener(v -> {
-            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Thay đổi ngôn ngữ")
-                    .setMessage("Tính năng này sẽ được cập nhật sau.")
-                    .setPositiveButton("OK", null)
-                    .show();
-        });
+        // ===== Change Language (placeholder – UI i18n ready) =====
+        btnChangeLanguage.setOnClickListener(v -> showLanguageDialog());
 
         // ===== Logout =====
         btnLogout.setOnClickListener(v -> showLogoutConfirm());
@@ -94,20 +95,22 @@ public class ProfileFragment extends Fragment {
                 tvDisplayName.setText(
                         profile.displayName != null && !profile.displayName.isEmpty()
                                 ? profile.displayName
-                                : "Người dùng"
+                                : UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
                 );
             }
 
             @Override
             public void onNotFound() {
-                // Chưa có profile
-                tvDisplayName.setText("Người dùng");
+                tvDisplayName.setText(
+                        UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
+                );
             }
 
             @Override
             public void onError(Exception e) {
-                // Lỗi backend → fallback an toàn
-                tvDisplayName.setText("Người dùng");
+                tvDisplayName.setText(
+                        UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
+                );
             }
         });
     }
@@ -121,14 +124,40 @@ public class ProfileFragment extends Fragment {
         bindUserInfo();
     }
 
+    // ===================== LANGUAGE (PLACEHOLDER) =====================
+
+    private void showLanguageDialog() {
+        String[] langs = {
+                UiText.t(UiTextKey.LANG_VI),
+                UiText.t(UiTextKey.LANG_EN)
+        };
+
+        String[] values = {"vi", "en"};
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(UiText.t(UiTextKey.LANG_SELECT_TITLE))
+                .setItems(langs, (dialog, which) -> {
+                    String selectedLang = values[which];
+                    new LocaleStore(requireContext()).setLanguage(selectedLang);
+                    requireActivity().recreate();
+                })
+                .show();
+    }
+
     // ===================== LOGOUT =====================
 
     private void showLogoutConfirm() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Đăng xuất")
-                .setMessage("Bạn có chắc muốn đăng xuất không?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> doLogout())
-                .setNegativeButton("Huỷ", null)
+                .setTitle(UiText.t(UiTextKey.LOGOUT_TITLE))
+                .setMessage(UiText.t(UiTextKey.LOGOUT_MESSAGE))
+                .setPositiveButton(
+                        UiText.t(UiTextKey.LOGOUT_CONFIRM),
+                        (dialog, which) -> doLogout()
+                )
+                .setNegativeButton(
+                        UiText.t(UiTextKey.LOGOUT_CANCEL),
+                        null
+                )
                 .show();
     }
 

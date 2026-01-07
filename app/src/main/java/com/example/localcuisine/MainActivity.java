@@ -2,6 +2,8 @@ package com.example.localcuisine;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,8 @@ import com.example.localcuisine.ui.auth.LoginActivity;
 import com.example.localcuisine.ui.detail.FoodDetailFragment;
 import com.example.localcuisine.ui.favorite.FavoriteFragment;
 import com.example.localcuisine.ui.home.HomeFragment;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
 import com.example.localcuisine.ui.notification.NotificationDetailFragment;
 import com.example.localcuisine.ui.notification.NotificationFragment;
 import com.example.localcuisine.ui.profile.ProfileFragment;
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setBottomNavText();
         setSupportActionBar(binding.toolbarHome);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -120,4 +125,26 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    private void setBottomNavText() {
+        Menu menu = binding.navView.getMenu();
+        if (menu == null) return;
+
+        MenuItem home = menu.findItem(R.id.navigation_home);
+        MenuItem fav = menu.findItem(R.id.navigation_favorite);
+        MenuItem noti = menu.findItem(R.id.navigation_notifications);
+        MenuItem profile = menu.findItem(R.id.navigation_profile);
+
+        if (home != null) {
+            home.setTitle(UiText.t(UiTextKey.NAV_HOME));
+        }
+        if (fav != null) {
+            fav.setTitle(UiText.t(UiTextKey.NAV_FAVORITE));
+        }
+        if (noti != null) {
+            noti.setTitle(UiText.t(UiTextKey.NAV_NOTIFICATION));
+        }
+        if (profile != null) {
+            profile.setTitle(UiText.t(UiTextKey.NAV_PROFILE));
+        }
+    }
 }

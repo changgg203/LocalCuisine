@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.localcuisine.R;
 import com.example.localcuisine.model.Reply;
 import com.example.localcuisine.model.Review;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
 
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
 
     private final List<Review> reviews;
     private final OnReplyClickListener replyListener;
+
     public ReviewAdapter(List<Review> reviews, OnReplyClickListener replyListener) {
         this.reviews = reviews;
         this.replyListener = replyListener;
@@ -50,7 +53,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         String comment = review.getComment();
         holder.txtComment.setText(
                 (comment == null || comment.trim().isEmpty())
-                        ? "— Không có nhận xét —"
+                        ? UiText.t(UiTextKey.REVIEW_EMPTY_COMMENT)
                         : comment
         );
 
@@ -69,6 +72,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         }
 
         // ===== Reply action =====
+        holder.btnReply.setText(
+                UiText.t(UiTextKey.REVIEW_REPLY_ACTION)
+        );
         holder.btnReply.setOnClickListener(v -> {
             if (replyListener != null) {
                 replyListener.onReply(review);

@@ -25,6 +25,9 @@ import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.ui.common.GridSpacingItemDecoration;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -50,6 +53,10 @@ public class HomeFragment extends Fragment {
     ) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbarHome);
+        toolbar.setSubtitle(
+                UiText.t(UiTextKey.HOME_SUBTITLE)
+        );
 
         // ===== RecyclerView =====
         RecyclerView recyclerView = view.findViewById(R.id.recyclerFood);
@@ -79,6 +86,9 @@ public class HomeFragment extends Fragment {
 
         // ===== Search =====
         AutoCompleteTextView edtSearch = view.findViewById(R.id.edtSearch);
+        edtSearch.setHint(
+                UiText.t(UiTextKey.HOME_SEARCH_HINT)
+        );
         List<String> suggestions = new ArrayList<>();
 
         suggestAdapter = new ArrayAdapter<>(

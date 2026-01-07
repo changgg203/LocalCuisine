@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,8 +15,7 @@
             android:id="@+id/toolbarHome"
             style="@style/Widget.LocalCuisine.Toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:subtitle="Khám phá món Việt" />
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,23 +36,23 @@
                     android:id="@+id/edtSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Tìm món ăn..."
-                    android:singleLine="true"
-                    android:padding="@dimen/space_s" />
+                    android:hint=""
+                    android:padding="@dimen/space_s"
+                    android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:paddingTop="@dimen/space_s">
+                android:paddingTop="@dimen/space_s"
+                android:scrollbars="none">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupFilters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:singleSelection="false"
-                    app:chipSpacingHorizontal="8dp" />
+                    app:chipSpacingHorizontal="8dp"
+                    app:singleSelection="false" />
             </HorizontalScrollView>
 
         </LinearLayout>
@@ -64,10 +62,10 @@
         android:id="@+id/recyclerFood"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/space_m"
-        android:paddingEnd="@dimen/space_m"
-        android:paddingTop="@dimen/space_s"
         android:clipToPadding="false"
+        android:paddingStart="@dimen/space_m"
+        android:paddingTop="@dimen/space_s"
+        android:paddingEnd="@dimen/space_m"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

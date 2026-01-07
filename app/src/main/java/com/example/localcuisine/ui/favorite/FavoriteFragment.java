@@ -22,6 +22,9 @@ import com.example.localcuisine.data.favorite.FirestoreFavoriteRepository;
 import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.ui.home.FoodAdapter;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -61,6 +64,21 @@ public class FavoriteFragment extends Fragment {
                 new ArrayList<>(),
                 foodId -> ((MainActivity) requireActivity()).openFoodDetail(foodId),
                 null
+        );
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbarFavorite);
+        toolbar.setTitle(
+                UiText.t(UiTextKey.FAVORITE_TITLE)
+        );
+        toolbar.setSubtitle(
+                UiText.t(UiTextKey.FAVORITE_SUBTITLE)
+        );
+
+        edtSearch.setHint(
+                UiText.t(UiTextKey.FAVORITE_SEARCH_HINT)
+        );
+
+        txtEmpty.setText(
+                UiText.t(UiTextKey.FAVORITE_EMPTY)
         );
         recyclerView.setAdapter(adapter);
 

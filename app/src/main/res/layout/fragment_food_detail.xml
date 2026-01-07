@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/space_m"
-                android:text="Tên món"
+                android:text=""
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="4dp"
-                android:text="Miền Bắc • Món nước • Hà Nội"
+                android:text=""
                 android:textColor="@color/text_secondary" />
 
             <LinearLayout
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="4dp"
-                    android:text="Chạm để đánh giá"
+                    android:text=""
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -81,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="6dp"
-                    android:text="(128)"
+                    android:text=""
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="4dp"
                 android:paddingTop="@dimen/space_m"
-                android:text="Mô tả..." />
+                android:text="" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -114,7 +114,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="❤️ Yêu thích"
+                    android:text=""
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />
 
@@ -125,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_s"
                     android:layout_weight="1"
-                    android:text="✍️ Đánh giá"
+                    android:text=""
                     android:textSize="14sp"
                     app:cornerRadius="14dp" />
 
@@ -137,7 +137,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
-                android:text="📍 Xem trên bản đồ"
+                android:text=""
                 android:textSize="14sp"
                 app:cornerRadius="14dp" />
 
@@ -147,7 +147,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/space_l"
-                android:text="Đánh giá gần đây"
+                android:text=""
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -164,16 +164,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
-                android:text="Xem thêm đánh giá"
+                android:text=""
                 android:textColor="?attr/colorPrimary"
                 android:visibility="gone" />
 
 
             <TextView
+                android:id="@+id/txtRecommendTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/space_l"
-                android:text="Có thể bạn cũng thích"
+                android:text=""
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

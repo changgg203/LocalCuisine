@@ -36,6 +36,8 @@ import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.model.Reply;
 import com.example.localcuisine.model.Review;
 import com.example.localcuisine.ui.home.FoodAdapter;
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -146,6 +148,21 @@ public class FoodDetailFragment extends Fragment {
         ratingSummaryBar = view.findViewById(R.id.ratingBar);
         txtRatingCount = view.findViewById(R.id.txtRatingCount);
 
+        Button btnMap = view.findViewById(R.id.btnMap);
+
+        txtRateHint.setText(UiText.t(UiTextKey.DETAIL_RATE_HINT));
+        btnReview.setText(UiText.t(UiTextKey.DETAIL_REVIEW_BUTTON));
+        btnMap.setText(UiText.t(UiTextKey.DETAIL_MAP_BUTTON));
+
+        TextView txtReviewTitle = view.findViewById(R.id.txtReviewTitle);
+        TextView txtSeeMore = view.findViewById(R.id.btnSeeMoreReviews);
+        TextView txtRecommendTitle = view.findViewById(R.id.txtRecommendTitle);
+
+        txtReviewTitle.setText(UiText.t(UiTextKey.DETAIL_REVIEW_SECTION_TITLE));
+        txtSeeMore.setText(UiText.t(UiTextKey.DETAIL_REVIEW_SEE_MORE));
+        txtRecommendTitle.setText(UiText.t(UiTextKey.DETAIL_RECOMMEND_SECTION_TITLE));
+
+
         txtName.setText(food.getName());
 
         FoodType mainType = food.getTypes().stream().findFirst().orElse(null);
@@ -174,7 +191,6 @@ public class FoodDetailFragment extends Fragment {
         txtRateHint.setOnClickListener(v -> showReviewDialog());
         btnReview.setOnClickListener(v -> showReviewDialog());
 
-        Button btnMap = view.findViewById(R.id.btnMap);
 
         btnMap.setOnClickListener(v -> openGoogleMaps(food));
 
@@ -210,9 +226,11 @@ public class FoodDetailFragment extends Fragment {
 
     private void toggleFavorite() {
         if (uid == null) {
-            Toast.makeText(requireContext(),
-                    "Bạn cần đăng nhập",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    requireContext(),
+                    UiText.t(UiTextKey.DETAIL_LOGIN_REQUIRED),
+                    Toast.LENGTH_SHORT
+            ).show();
             return;
         }
 
@@ -259,8 +277,10 @@ public class FoodDetailFragment extends Fragment {
     }
 
     private void updateFavoriteButton() {
-        if (uid == null || btnFavorite == null) {
-            btnFavorite.setText("❤️ Yêu thích");
+        if (btnFavorite == null) return;
+
+        if (uid == null) {
+            btnFavorite.setText(UiText.t(UiTextKey.DETAIL_FAVORITE_ADD));
             return;
         }
 
@@ -268,7 +288,9 @@ public class FoodDetailFragment extends Fragment {
             @Override
             public void onResult(boolean isFavorite) {
                 btnFavorite.setText(
-                        isFavorite ? "💔 Bỏ yêu thích" : "❤️ Yêu thích"
+                        isFavorite
+                                ? UiText.t(UiTextKey.DETAIL_FAVORITE_REMOVE)
+                                : UiText.t(UiTextKey.DETAIL_FAVORITE_ADD)
                 );
             }
 
@@ -279,7 +301,6 @@ public class FoodDetailFragment extends Fragment {
         });
     }
 
-    // ===================== REVIEW =====================
 
     private void setupReviewSection(@NonNull View view) {
         reviewAdapter = new ReviewAdapter(reviewList, this::showReplyDialog);
@@ -309,93 +330,136 @@ public class FoodDetailFragment extends Fragment {
 
     private void showReviewDialog() {
         if (!sessionManager.isLoggedIn()) {
-            Toast.makeText(requireContext(),
-                    "Bạn cần đăng nhập để đánh giá",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    requireContext(),
+                    UiText.t(UiTextKey.DETAIL_LOGIN_REQUIRED_REVIEW),
+                    Toast.LENGTH_SHORT
+            ).show();
             return;
         }
 
         View dialog = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_write_review, null);
 
+        TextView txtTitle = dialog.findViewById(R.id.txtDialogTitle);
         RatingBar ratingInput = dialog.findViewById(R.id.ratingInput);
         EditText edtComment = dialog.findViewById(R.id.edtComment);
+
+        txtTitle.setText(
+                UiText.t(UiTextKey.REVIEW_DIALOG_TITLE)
+        );
+        edtComment.setHint(
+                UiText.t(UiTextKey.REVIEW_DIALOG_HINT)
+        );
+
         String currentUserId = sessionManager.getUserId();
 
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Đánh giá món ăn")
                 .setView(dialog)
-                .setPositiveButton("Gửi", (d, w) -> {
-                    float rating = ratingInput.getRating();
-                    String comment = edtComment.getText().toString().trim();
-                    if (rating <= 0f) return;
+                .setPositiveButton(
+                        UiText.t(UiTextKey.DETAIL_SEND),
+                        (d, w) -> {
+                            float rating = ratingInput.getRating();
+                            String comment = edtComment.getText().toString().trim();
+                            if (rating <= 0f) return;
 
-                    Review review = new Review(foodId, rating, comment, currentUserId);
-                    reviewRepo.getDataSource().addReview(review, new ReviewDataSource.ActionCallback() {
-                        @Override
-                        public void onSuccess() {
-                            loadReviews();
-                        }
+                            Review review = new Review(foodId, rating, comment, currentUserId);
+                            reviewRepo.getDataSource().addReview(
+                                    review,
+                                    new ReviewDataSource.ActionCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            loadReviews();
+                                        }
 
-                        @Override
-                        public void onError(Throwable t) {
-                            t.printStackTrace();
+                                        @Override
+                                        public void onError(Throwable t) {
+                                            t.printStackTrace();
+                                        }
+                                    }
+                            );
                         }
-                    });
-                })
-                .setNegativeButton("Huỷ", null)
+                )
+                .setNegativeButton(
+                        UiText.t(UiTextKey.DETAIL_CANCEL),
+                        null
+                )
                 .show();
     }
 
+
     private void showReplyDialog(@NonNull Review review) {
         if (!sessionManager.isLoggedIn()) {
-            Toast.makeText(requireContext(),
-                    "Bạn cần đăng nhập để phản hồi",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    requireContext(),
+                    UiText.t(UiTextKey.DETAIL_LOGIN_REQUIRED_REPLY),
+                    Toast.LENGTH_SHORT
+            ).show();
             return;
         }
 
         View dialog = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_reply, null);
 
+        TextView txtTitle = dialog.findViewById(R.id.txtDialogTitle);
         EditText edtReply = dialog.findViewById(R.id.edtReply);
+
+        txtTitle.setText(
+                UiText.t(UiTextKey.DETAIL_REPLY_DIALOG_TITLE)
+        );
+        edtReply.setHint(
+                UiText.t(UiTextKey.REPLY_DIALOG_HINT)
+        );
+
         String currentUserId = sessionManager.getUserId();
 
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Phản hồi")
                 .setView(dialog)
-                .setPositiveButton("Gửi", (d, w) -> {
-                    String content = edtReply.getText().toString().trim();
-                    if (content.isEmpty()) return;
+                .setPositiveButton(
+                        UiText.t(UiTextKey.DETAIL_SEND),
+                        (d, w) -> {
+                            String content = edtReply.getText().toString().trim();
+                            if (content.isEmpty()) return;
 
-                    Reply reply = new Reply(review.getId(), content, currentUserId);
-                    reviewRepo.getDataSource()
-                            .addReply(foodId, review.getId(), review.getAuthorId(), reply, new ReviewDataSource.ActionCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    loadReviews();
+                            Reply reply = new Reply(review.getId(), content, currentUserId);
+                            reviewRepo.getDataSource()
+                                    .addReply(
+                                            foodId,
+                                            review.getId(),
+                                            review.getAuthorId(),
+                                            reply,
+                                            new ReviewDataSource.ActionCallback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    loadReviews();
 
-                                    if (!currentUserId.equals(review.getAuthorId())) {
-                                        Food food = FoodRepository.getFoodById(foodId);
-                                        if (food != null) {
-                                            NotificationHelper.notifyReply(
-                                                    requireContext(),
-                                                    food.getName(),
-                                                    content
-                                            );
-                                        }
-                                    }
-                                }
+                                                    if (!currentUserId.equals(review.getAuthorId())) {
+                                                        Food food = FoodRepository.getFoodById(foodId);
+                                                        if (food != null) {
+                                                            NotificationHelper.notifyReply(
+                                                                    requireContext(),
+                                                                    food.getName(),
+                                                                    content
+                                                            );
+                                                        }
+                                                    }
+                                                }
 
-                                @Override
-                                public void onError(Throwable t) {
-                                    t.printStackTrace();
-                                }
-                            });
-                })
-                .setNegativeButton("Huỷ", null)
+                                                @Override
+                                                public void onError(Throwable t) {
+                                                    t.printStackTrace();
+                                                }
+                                            }
+                                    );
+                        }
+                )
+                .setNegativeButton(
+                        UiText.t(UiTextKey.DETAIL_CANCEL),
+                        null
+                )
                 .show();
     }
+
 
     private void updateAverageRating() {
         if (reviewList.isEmpty()) {

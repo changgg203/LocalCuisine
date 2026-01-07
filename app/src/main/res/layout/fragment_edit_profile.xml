@@ -17,9 +17,10 @@
 
     <!-- FORM -->
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilDisplayName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Họ và tên">
+        android:hint="">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtDisplayName"
@@ -28,10 +29,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Email">
+        android:hint="">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtEmail"
@@ -41,10 +43,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Số điện thoại">
+        android:hint="">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtPhone"
@@ -54,10 +57,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilBio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Giới thiệu ngắn">
+        android:hint="">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edtBio"
@@ -73,5 +77,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Lưu" />
+        android:text="" />
 </LinearLayout>

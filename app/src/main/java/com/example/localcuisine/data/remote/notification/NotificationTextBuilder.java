@@ -1,22 +1,32 @@
 package com.example.localcuisine.data.remote.notification;
 
+import com.example.localcuisine.ui.i18n.UiText;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+
 public class NotificationTextBuilder {
 
     public static String buildTitle(FirestoreNotification n) {
-        if (n == null) return "Thông báo";
+        if (n == null) {
+            return UiText.t(UiTextKey.NOTIF_DEFAULT_TITLE);
+        }
 
         String type = n.getType();
-        if (type == null) return "Thông báo mới";
+        if (type == null) {
+            return UiText.t(UiTextKey.NOTIF_NEW);
+        }
 
         switch (type) {
             case "REPLY":
-                return "Phản hồi mới";
+                return UiText.t(UiTextKey.NOTIF_REPLY_TITLE);
+
             case "REVIEW":
-                return "Đánh giá mới";
+                return UiText.t(UiTextKey.NOTIF_REVIEW_TITLE);
+
             case "FAVORITE":
-                return "Món ăn được yêu thích";
+                return UiText.t(UiTextKey.NOTIF_FAVORITE_TITLE);
+
             default:
-                return "Thông báo mới";
+                return UiText.t(UiTextKey.NOTIF_NEW);
         }
     }
 
@@ -24,17 +34,19 @@ public class NotificationTextBuilder {
         if (n == null) return "";
 
         String type = n.getType();
-        if (type == null) return "Có người đã phản hồi về món ăn bạn quan tâm: " + n.getContent();
+        if (type == null) {
+            return n.getContent();
+        }
 
         switch (type) {
             case "REPLY":
-                return "Có người đã phản hồi về món ăn bạn quan tâm";
+                return UiText.t(UiTextKey.NOTIF_REPLY_CONTENT);
 
             case "REVIEW":
-                return "Có một đánh giá mới cho món ăn của bạn";
+                return UiText.t(UiTextKey.NOTIF_REVIEW_CONTENT);
 
             case "FAVORITE":
-                return "Một món ăn bạn theo dõi vừa được yêu thích";
+                return UiText.t(UiTextKey.NOTIF_FAVORITE_CONTENT);
 
             default:
                 return n.getContent();
