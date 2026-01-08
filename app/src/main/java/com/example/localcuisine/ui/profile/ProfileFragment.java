@@ -1,4 +1,3 @@
-// ui/profile/ProfileFragment.java
 package com.example.localcuisine.ui.profile;
 
 import android.content.Intent;
@@ -17,6 +16,7 @@ import com.example.localcuisine.R;
 import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.data.repository.UserRepository;
 import com.example.localcuisine.data.user.UserProfile;
+import com.example.localcuisine.ui.admin.AdminFoodListFragment;
 import com.example.localcuisine.ui.auth.LoginActivity;
 import com.example.localcuisine.ui.i18n.LocaleStore;
 import com.example.localcuisine.ui.i18n.UiText;
@@ -24,10 +24,24 @@ import com.example.localcuisine.ui.i18n.UiTextKey;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * ProfileFragment
+ * <p>
+ * - Hiển thị thông tin người dùng
+ * - Cho phép chỉnh sửa profile
+ * - Đổi ngôn ngữ
+ * - Logout
+ * - Hiển thị nút Admin nếu user có quyền
+ */
 public class ProfileFragment extends Fragment {
 
     private TextView tvUsername;
     private TextView tvDisplayName;
+
+    private Button btnEditProfile;
+    private Button btnChangeLanguage;
+    private Button btnAdminManage;
+    private Button btnLogout;
 
     private UserRepository userRepo;
 
@@ -40,20 +54,35 @@ public class ProfileFragment extends Fragment {
     ) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // ===== Bind views =====
+        bindViews(view);
+        setupTexts();
+        setupActions();
+
+        userRepo = new UserRepository();
+        bindUserInfo();
+
+        return view;
+    }
+
+
+    private void bindViews(View view) {
         tvUsername = view.findViewById(R.id.tvUsername);
         tvDisplayName = view.findViewById(R.id.tvDisplayName);
 
-        Button btnLogout = view.findViewById(R.id.btnLogout);
-        Button btnEditProfile = view.findViewById(R.id.btnEditProfile);
-        Button btnChangeLanguage = view.findViewById(R.id.btnChangeLanguage);
+        btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnChangeLanguage = view.findViewById(R.id.btnChangeLanguage);
+        btnAdminManage = view.findViewById(R.id.btnAdminManage);
+        btnLogout = view.findViewById(R.id.btnLogout);
+    }
+
+    private void setupTexts() {
         btnEditProfile.setText(UiText.t(UiTextKey.PROFILE_EDIT));
         btnChangeLanguage.setText(UiText.t(UiTextKey.PROFILE_CHANGE_LANGUAGE));
+        btnAdminManage.setText(UiText.t(UiTextKey.ADMIN_MANAGEMENT));
         btnLogout.setText(UiText.t(UiTextKey.PROFILE_LOGOUT));
+    }
 
-        userRepo = new UserRepository();
-
-        // ===== Edit Profile =====
+    private void setupActions() {
         btnEditProfile.setOnClickListener(v ->
                 requireActivity()
                         .getSupportFragmentManager()
@@ -63,18 +92,13 @@ public class ProfileFragment extends Fragment {
                         .commit()
         );
 
-        // ===== Change Language (placeholder – UI i18n ready) =====
         btnChangeLanguage.setOnClickListener(v -> showLanguageDialog());
 
-        // ===== Logout =====
+        btnAdminManage.setOnClickListener(v -> openAdmin());
+
         btnLogout.setOnClickListener(v -> showLogoutConfirm());
-
-        bindUserInfo();
-
-        return view;
     }
 
-    // ===================== USER INFO =====================
 
     private void bindUserInfo() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -88,7 +112,7 @@ public class ProfileFragment extends Fragment {
         String email = user.getEmail();
         tvUsername.setText(email != null ? email : "—");
 
-        // Display name lấy từ Firestore
+        // Profile từ Firestore
         userRepo.loadMyProfile(new UserRepository.LoadProfileCallback() {
             @Override
             public void onSuccess(UserProfile profile) {
@@ -97,34 +121,50 @@ public class ProfileFragment extends Fragment {
                                 ? profile.displayName
                                 : UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
                 );
+
+                // ===== ADMIN VISIBILITY =====
+                btnAdminManage.setVisibility(
+                        profile.isAdmin ? View.VISIBLE : View.GONE
+                );
             }
 
             @Override
             public void onNotFound() {
-                tvDisplayName.setText(
-                        UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
-                );
+                applyFallbackProfile();
             }
 
             @Override
             public void onError(Exception e) {
-                tvDisplayName.setText(
-                        UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
-                );
+                applyFallbackProfile();
             }
         });
     }
 
-    // ===================== LIFECYCLE =====================
+    private void applyFallbackProfile() {
+        tvDisplayName.setText(
+                UiText.t(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK)
+        );
+        btnAdminManage.setVisibility(View.GONE);
+    }
+
 
     @Override
     public void onResume() {
         super.onResume();
-        // Khi quay lại từ EditProfileFragment → refresh profile
+        // Quay lại từ EditProfileFragment → refresh
         bindUserInfo();
     }
 
-    // ===================== LANGUAGE (PLACEHOLDER) =====================
+
+    private void openAdmin() {
+        requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_container, new AdminFoodListFragment())
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     private void showLanguageDialog() {
         String[] langs = {
@@ -137,8 +177,8 @@ public class ProfileFragment extends Fragment {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle(UiText.t(UiTextKey.LANG_SELECT_TITLE))
                 .setItems(langs, (dialog, which) -> {
-                    String selectedLang = values[which];
-                    new LocaleStore(requireContext()).setLanguage(selectedLang);
+                    new LocaleStore(requireContext())
+                            .setLanguage(values[which]);
                     requireActivity().recreate();
                 })
                 .show();

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.localcuisine.data.auth.SessionStore;
+import com.example.localcuisine.data.auth.UserSessionSync;
 import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.databinding.ActivityMainBinding;
 import com.example.localcuisine.model.Food;
@@ -40,18 +41,25 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+
         if (session.getUserRegion() == null) {
             session.setUserRegion(com.example.localcuisine.model.Region.ALL);
+        }
+        String uid = session.getUserId();
+        if (uid != null) {
+            UserSessionSync.syncFavorites(this, uid);
         }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         setBottomNavText();
         setSupportActionBar(binding.toolbarHome);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
+        // ===== Preload food data =====
         FoodRepository.ensureLoaded(new FoodRepository.LoadCallback() {
             @Override
             public void onSuccess(List<Food> foods) {

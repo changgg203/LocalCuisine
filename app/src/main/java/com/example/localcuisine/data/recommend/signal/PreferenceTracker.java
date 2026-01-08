@@ -3,6 +3,7 @@ package com.example.localcuisine.data.recommend.signal;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 
@@ -50,25 +51,6 @@ public class PreferenceTracker {
         return ctx.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    /**
-     * Ghi nhận hành vi click vào món ăn
-     *
-     * @param ctx  Context
-     * @param food Món ăn được click
-     */
-    public static void onFoodClick(Context ctx, Food food) {
-        updateTypes(ctx, food, 1.0);
-    }
-
-    /**
-     * Ghi nhận hành vi thêm món ăn vào yêu thích
-     *
-     * @param ctx  Context
-     * @param food Món ăn được favorite
-     */
-    public static void onFavorite(Context ctx, Food food) {
-        updateTypes(ctx, food, 2.0);
-    }
 
     /**
      * Ghi nhận hành vi đánh giá / review món ăn
@@ -165,5 +147,28 @@ public class PreferenceTracker {
             if (score > 0) m.put(t, score);
         }
         return m;
+    }
+
+    public static void onFoodClick(Context ctx, Food food) {
+        SessionStore sm = new SessionStore(ctx);
+
+        if (food.getTypes() != null) {
+            Set<String> types = new HashSet<>();
+            for (FoodType t : food.getTypes()) {
+                types.add(t.name());
+            }
+            sm.addCachedPreferredTypes(types);
+        }
+
+        if (food.getTags() != null) {
+            sm.addCachedPreferredTags(
+                    new HashSet<>(food.getTags())
+            );
+        }
+    }
+
+    public static void onFavorite(Context ctx, Food food) {
+        // Favorite = strong signal
+        onFoodClick(ctx, food);
     }
 }

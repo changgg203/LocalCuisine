@@ -35,14 +35,6 @@ public class RegionRule implements HardRule {
      */
     @Override
     public String failReason(UserProfile user, Food item, RecommendationContext ctx) {
-        if (user.region == null || item.getRegion() == null) return null;
-
-        if (item.getRegion() == Region.ALL) return null;
-        if (user.region == Region.ALL) return null;
-
-        if (item.getRegion() != user.region) {
-            return "Không thuộc vùng miền của bạn";
-        }
         return null;
     }
 }

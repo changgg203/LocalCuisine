@@ -191,7 +191,7 @@ public class RecommenderEngine {
                 if (pref == null) continue;
                 if (tags.contains(pref.toLowerCase())) hit++;
             }
-            if (hit > 0) {
+            if (hit > 3) {
                 rr.score += Math.min(0.6, hit * 0.25);
                 rr.addReason("Hợp khẩu vị của bạn");
                 hasStrongReason = true;

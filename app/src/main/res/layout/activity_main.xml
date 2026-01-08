@@ -23,7 +23,7 @@
             android:layout_height="44dp"
             android:layout_gravity="start"
             android:layout_margin="16dp"
-            android:contentDescription="@string/app_name"
+            android:contentDescription=""
             android:scaleType="fitStart"
             android:src="@drawable/local_cuisine_full_logo" />
 

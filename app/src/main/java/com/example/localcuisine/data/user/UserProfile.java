@@ -31,7 +31,10 @@ public class UserProfile {
        Recommendation preference
        ========================= */
 
-    public Region region = Region.ALL;
+    public Region region = Region.NORTH;
+
+    public boolean isAdmin = false;
+
 
     // gu ăn uống
     public Set<String> preferredTags = new HashSet<>();
@@ -57,7 +60,7 @@ public class UserProfile {
         p.bio = doc.getString("bio");
         p.language = doc.getString("language");
 
-        // ---- optional fields (nếu có trong Firestore) ----
+        // ---- region ----
         String regionStr = doc.getString("region");
         if (regionStr != null) {
             try {
@@ -66,6 +69,11 @@ public class UserProfile {
             }
         }
 
+        // ---- admin flag (default false) ----
+        Boolean admin = doc.getBoolean("isAdmin");
+        p.isAdmin = admin != null && admin;
+
         return p;
     }
+
 }

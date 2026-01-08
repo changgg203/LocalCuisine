@@ -1,66 +1,203 @@
 package com.example.localcuisine.ui.admin;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.R;
+import com.example.localcuisine.data.repository.AdminFoodRepository;
+import com.example.localcuisine.model.Food;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link AdminFoodListFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * AdminFoodListFragment
+ * <p>
+ * - List món ăn
+ * - Click        → Edit
+ * - Long press   → Delete
  */
 public class AdminFoodListFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    // =====================
+    // Data
+    // =====================
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private final List<Food> foods = new ArrayList<>();
+    private final AdminFoodRepository repo = AdminFoodRepository.getInstance();
 
-    public AdminFoodListFragment() {
-        // Required empty public constructor
-    }
+    // =====================
+    // Views
+    // =====================
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AdminFoodListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AdminFoodListFragment newInstance(String param1, String param2) {
-        AdminFoodListFragment fragment = new AdminFoodListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private RecyclerView rvFoods;
+    private ProgressBar progressBar;
+    private FloatingActionButton fabAdd;
+    private AdminFoodAdapter adapter;
 
+    // =====================
+    // Lifecycle
+    // =====================
+
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
         return inflater.inflate(R.layout.fragment_admin_food_list, container, false);
+    }
+
+    @Override
+    public void onViewCreated(
+            @NonNull View view,
+            @Nullable Bundle savedInstanceState
+    ) {
+        bindViews(view);
+        setupRecyclerView();
+        setupActions();
+        loadData();
+    }
+
+    // =====================
+    // Setup
+    // =====================
+
+    private void bindViews(View v) {
+        rvFoods = v.findViewById(R.id.rvFoods);
+        progressBar = v.findViewById(R.id.progressBar);
+        fabAdd = v.findViewById(R.id.fabAddFood);
+    }
+
+    private void setupRecyclerView() {
+        adapter = new AdminFoodAdapter(
+                foods,
+                food -> openEdit(food.getId()),
+                this::confirmDelete
+        );
+
+        rvFoods.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvFoods.setAdapter(adapter);
+    }
+
+    private void setupActions() {
+        fabAdd.setOnClickListener(v -> openCreate());
+    }
+
+    // =====================
+    // Data
+    // =====================
+
+    private void loadData() {
+        progressBar.setVisibility(View.VISIBLE);
+
+        repo.loadAll(new AdminFoodRepository.LoadCallback() {
+            @Override
+            public void onSuccess(@NonNull List<Food> result) {
+                if (!isAdded()) return;
+
+                foods.clear();
+                foods.addAll(result);
+                adapter.notifyDataSetChanged();
+
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onError(@NonNull Exception e) {
+                if (!isAdded()) return;
+
+                progressBar.setVisibility(View.GONE);
+                toast("Không tải được danh sách món");
+            }
+        });
+    }
+
+    // =====================
+    // Navigation
+    // =====================
+
+    private void openCreate() {
+        openEdit(-1);
+    }
+
+    private void openEdit(int foodId) {
+        Bundle args = new Bundle();
+        args.putInt(AdminFoodEditFragment.ARG_FOOD_ID, foodId);
+
+        Fragment editFragment = new AdminFoodEditFragment();
+        editFragment.setArguments(args);
+
+        View root = getView();
+        if (root == null) return;
+
+        root.findViewById(R.id.admin_list_container)
+                .setVisibility(View.GONE);
+
+        View editContainer = root.findViewById(R.id.admin_edit_container);
+        editContainer.setVisibility(View.VISIBLE);
+
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.admin_edit_container, editFragment)
+                .addToBackStack("admin_edit")
+                .commit();
+    }
+
+    // =====================
+    // Delete
+    // =====================
+
+    private void confirmDelete(@NonNull Food food) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Xoá món ăn")
+                .setMessage("Bạn có chắc muốn xoá \"" + food.getName() + "\"?")
+                .setPositiveButton("Xoá", (d, w) -> deleteFood(food))
+                .setNegativeButton("Huỷ", null)
+                .show();
+    }
+
+    private void deleteFood(@NonNull Food food) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        repo.delete(food.getId(), new AdminFoodRepository.ActionCallback() {
+            @Override
+            public void onSuccess() {
+                if (!isAdded()) return;
+
+                toast("Đã xoá món");
+                loadData();
+            }
+
+            @Override
+            public void onError(@NonNull Exception e) {
+                if (!isAdded()) return;
+
+                progressBar.setVisibility(View.GONE);
+                toast("Không thể xoá món");
+            }
+        });
+    }
+
+    // =====================
+    // Utils
+    // =====================
+
+    private void toast(String msg) {
+        if (!isAdded()) return;
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }

@@ -41,6 +41,55 @@ public class FirebaseFoodDataSource {
                 .addOnFailureListener(cb::onError);
     }
 
+    // --------------------------------------------------
+    // Create
+    // --------------------------------------------------
+
+    public void addFood(
+            @NonNull FirestoreFoodDoc doc,
+            @NonNull Callback<Void> cb
+    ) {
+        db.collection("foods")
+                .document(String.valueOf(doc.id))
+                .set(doc)
+                .addOnSuccessListener(unused -> cb.onSuccess(null))
+                .addOnFailureListener(cb::onError);
+    }
+
+    // --------------------------------------------------
+    // Update
+    // --------------------------------------------------
+
+    public void updateFood(
+            @NonNull FirestoreFoodDoc doc,
+            @NonNull Callback<Void> cb
+    ) {
+        db.collection("foods")
+                .document(String.valueOf(doc.id))
+                .set(doc)
+                .addOnSuccessListener(unused -> cb.onSuccess(null))
+                .addOnFailureListener(cb::onError);
+    }
+
+    // --------------------------------------------------
+    // Delete
+    // --------------------------------------------------
+
+    public void deleteFood(
+            int foodId,
+            @NonNull Callback<Void> cb
+    ) {
+        db.collection("foods")
+                .document(String.valueOf(foodId))
+                .delete()
+                .addOnSuccessListener(unused -> cb.onSuccess(null))
+                .addOnFailureListener(cb::onError);
+    }
+
+    // --------------------------------------------------
+    // Callback
+    // --------------------------------------------------
+
     public interface Callback<T> {
         void onSuccess(T data);
 

@@ -34,6 +34,7 @@ public class UiTextProvider {
         vi.put(UiTextKey.LANG_EN, "English");
         vi.put(UiTextKey.PROFILE_EDIT, "Chỉnh sửa hồ sơ");
         vi.put(UiTextKey.PROFILE_LOGOUT, "Đăng xuất");
+        vi.put(UiTextKey.ADMIN_MANAGEMENT, "Quản lý hệ thống");
 
         vi.put(UiTextKey.EDIT_PROFILE_SAVE, "Lưu");
         vi.put(UiTextKey.EDIT_PROFILE_LOAD_ERROR, "Không thể tải hồ sơ");
@@ -173,6 +174,7 @@ public class UiTextProvider {
         en.put(UiTextKey.NAV_FAVORITE, "Favorites");
         en.put(UiTextKey.NAV_NOTIFICATION, "Notifications");
         en.put(UiTextKey.NAV_PROFILE, "Profile");
+        en.put(UiTextKey.ADMIN_MANAGEMENT, "Management");
 
 
         DATA.put("vi", vi);

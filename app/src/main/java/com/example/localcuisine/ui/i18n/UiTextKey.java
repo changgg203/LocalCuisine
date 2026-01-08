@@ -85,6 +85,6 @@ public enum UiTextKey {
     NAV_HOME,
     NAV_FAVORITE,
     NAV_NOTIFICATION,
-    NAV_PROFILE,
+    NAV_PROFILE, ADMIN_MANAGEMENT,
 
 }

@@ -1,6 +1,7 @@
 package com.example.localcuisine.ui.detail;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,11 +27,15 @@ import com.example.localcuisine.R;
 import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.data.favorite.FavoriteRepository;
 import com.example.localcuisine.data.favorite.FirestoreFavoriteRepository;
+import com.example.localcuisine.data.recommend.core.RecommendationContext;
+import com.example.localcuisine.data.recommend.core.RecommendationResult;
+import com.example.localcuisine.data.recommend.core.RecommenderEngine;
 import com.example.localcuisine.data.recommend.signal.PreferenceTracker;
 import com.example.localcuisine.data.remote.notification.NotificationHelper;
 import com.example.localcuisine.data.remote.review.ReviewDataSource;
 import com.example.localcuisine.data.remote.review.ReviewRepository;
 import com.example.localcuisine.data.repository.FoodRepository;
+import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.model.Reply;
@@ -44,14 +49,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public class FoodDetailFragment extends Fragment {
 
     private final List<Review> reviewList = new ArrayList<>();
     private int foodId;
     private SessionStore sessionManager;
+
+    private RecommenderEngine recommenderEngine;
+
     private ReviewRepository reviewRepo;
     private FavoriteRepository favoriteRepo;
     private String uid;
@@ -81,7 +89,7 @@ public class FoodDetailFragment extends Fragment {
             @Nullable Bundle savedInstanceState
     ) {
         View view = inflater.inflate(R.layout.fragment_food_detail, container, false);
-
+        recommenderEngine = new RecommenderEngine();
         sessionManager = new SessionStore(requireContext());
         reviewRepo = ReviewRepository.getInstance(requireContext());
         favoriteRepo = new FirestoreFavoriteRepository();
@@ -480,20 +488,35 @@ public class FoodDetailFragment extends Fragment {
     private void bindRecommend(
             @NonNull View view,
             @NonNull List<Food> allFoods,
-            @NonNull Food food
+            @NonNull Food currentFood
     ) {
         RecyclerView recyclerRecommend = view.findViewById(R.id.recyclerRecommend);
         recyclerRecommend.setLayoutManager(
                 new LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
         );
 
-        List<Food> recommendList = new ArrayList<>();
-        for (Food f : allFoods) {
-            if (f.getId() == foodId) continue;
-            if (f.getRegion() == food.getRegion()
-                    || !Collections.disjoint(f.getTypes(), food.getTypes())) {
-                recommendList.add(f);
+        UserProfile user = buildUserProfile(requireContext(), allFoods);
+
+        if (currentFood.getTypes() != null) {
+            for (FoodType t : currentFood.getTypes()) {
+                user.preferredTypes.add(t.name());
             }
+        }
+        if (currentFood.getTags() != null) {
+            user.preferredTags.addAll(currentFood.getTags());
+        }
+        user.region = currentFood.getRegion();
+
+        RecommendationContext ctx = RecommendationContext.nowDefault();
+        ctx.intent = "similar";
+
+        List<RecommendationResult> results =
+                recommenderEngine.recommend(user, allFoods, ctx, 20);
+
+        List<Food> recommendList = new ArrayList<>();
+        for (RecommendationResult r : results) {
+            if (r.food.getId() == foodId) continue;
+            recommendList.add(r.food);
             if (recommendList.size() >= 6) break;
         }
 
@@ -505,4 +528,31 @@ public class FoodDetailFragment extends Fragment {
                 )
         );
     }
+
+    private UserProfile buildUserProfile(Context ctx, List<Food> foods) {
+        SessionStore sm = new SessionStore(ctx);
+
+        UserProfile user = new UserProfile();
+        user.loggedIn = sm.isLoggedIn();
+        user.region = sm.getUserRegion();
+
+        Set<Integer> favoriteIds = sm.getFavoriteFoodIds();
+        for (Food f : foods) {
+            if (favoriteIds.contains(f.getId())) {
+                if (f.getTypes() != null) {
+                    for (FoodType type : f.getTypes()) {
+                        user.preferredTypes.add(type.name());
+                    }
+                }
+                if (f.getTags() != null) {
+                    user.preferredTags.addAll(f.getTags());
+                }
+            }
+        }
+
+        user.preferredTypes.addAll(sm.getCachedPreferredTypes());
+        user.preferredTags.addAll(sm.getCachedPreferredTags());
+        return user;
+    }
+
 }

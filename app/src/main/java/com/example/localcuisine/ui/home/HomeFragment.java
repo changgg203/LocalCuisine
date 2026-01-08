@@ -1,5 +1,6 @@
 package com.example.localcuisine.ui.home;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class HomeFragment extends Fragment {
@@ -163,16 +165,7 @@ public class HomeFragment extends Fragment {
     }
 
     private List<Food> recommendFoods(List<Food> foods) {
-        SessionStore sm = new SessionStore(requireContext());
-
-        UserProfile user = new UserProfile();
-        user.region = sm.getUserRegion();
-        user.loggedIn = sm.isLoggedIn();
-
-        user.preferredTypes.addAll(
-                PreferenceTracker.getPreferredTypes(requireContext())
-        );
-
+        UserProfile user = buildUserProfile(requireContext(), foods);
 
         RecommendationContext ctx = RecommendationContext.nowDefault();
         ctx.intent = "explore";
@@ -190,6 +183,35 @@ public class HomeFragment extends Fragment {
             out.add(r.food);
         }
         return out;
+    }
+
+    private UserProfile buildUserProfile(Context ctx, List<Food> foods) {
+        SessionStore sm = new SessionStore(ctx);
+
+        UserProfile user = new UserProfile();
+        user.loggedIn = sm.isLoggedIn();
+        user.region = sm.getUserRegion();
+
+        Set<Integer> favoriteIds = sm.getFavoriteFoodIds(); // Set<Integer>
+        for (Food f : foods) {
+            if (favoriteIds.contains(f.getId())) {
+                if (f.getTypes() != null) {
+                    for (FoodType type : f.getTypes()) {
+                        user.preferredTypes.add(type.name());
+                    }
+                }
+                if (f.getTags() != null) {
+                    user.preferredTags.addAll(f.getTags());
+                }
+            }
+        }
+
+        user.preferredTypes.addAll(sm.getCachedPreferredTypes());
+        user.preferredTags.addAll(sm.getCachedPreferredTags());
+        System.out.println(user.preferredTags);
+        System.out.println(user.preferredTypes);
+
+        return user;
     }
 
 
