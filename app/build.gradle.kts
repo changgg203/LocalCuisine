@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.localcuisine"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.localcuisine"
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.navigation.ui)
 
     implementation(libs.room.runtime)
+    implementation(libs.activity)
     annotationProcessor(libs.room.compiler)
 
     implementation("com.google.code.gson:gson:2.10.1")

@@ -6,6 +6,17 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <!-- LOGO -->
+    <ImageView
+        android:id="@+id/imgLoginLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="64dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription=""
+        android:scaleType="fitCenter"
+        android:src="@drawable/local_cuisine_full_logo" />
+
+    <!-- TITLE -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,14 +25,16 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <!-- EMAIL -->
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Username"
-        android:inputType="text" />
+        android:hint="Email"
+        android:inputType="textEmailAddress" />
 
+    <!-- PASSWORD -->
     <EditText
         android:id="@+id/etPassword"
         android:layout_width="match_parent"
@@ -30,12 +43,23 @@
         android:hint="Mật khẩu"
         android:inputType="textPassword" />
 
+    <!-- FORGET PASSWORD -->
+    <TextView
+        android:id="@+id/btnForgetPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Quên mật khẩu?"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <!-- LOGIN -->
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Đăng nhập" />
 
+    <!-- REGISTER -->
     <TextView
         android:id="@+id/btnGoRegister"
         android:layout_width="wrap_content"

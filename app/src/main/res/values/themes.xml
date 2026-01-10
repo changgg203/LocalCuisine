@@ -1,17 +1,24 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources>
+
     <style name="Theme.LocalCuisine" parent="Theme.MaterialComponents.Light.NoActionBar">
+
         <item name="colorPrimary">@color/brand_orange</item>
         <item name="colorPrimaryVariant">@color/brand_orange_dark</item>
         <item name="colorSecondary">@color/brand_orange</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:windowLightStatusBar">true</item>
 
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
 
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.LocalCuisine.Medium</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.LocalCuisine.Medium
+        </item>
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.LocalCuisine.Small</item>
     </style>
+
 
     <style name="ShapeAppearance.LocalCuisine.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerSize">@dimen/radius_card</item>

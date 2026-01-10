@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.repository.AdminFoodRepository;
 import com.example.localcuisine.model.Food;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.example.localcuisine.ui.i18n.UiTextProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -76,7 +78,7 @@ public class AdminFoodListFragment extends Fragment {
     // Setup
     // =====================
 
-    private void bindViews(View v) {
+    private void bindViews(@NonNull View v) {
         rvFoods = v.findViewById(R.id.rvFoods);
         progressBar = v.findViewById(R.id.progressBar);
         fabAdd = v.findViewById(R.id.fabAddFood);
@@ -121,7 +123,7 @@ public class AdminFoodListFragment extends Fragment {
                 if (!isAdded()) return;
 
                 progressBar.setVisibility(View.GONE);
-                toast("Không tải được danh sách món");
+                toast(UiTextProvider.get(UiTextKey.ADMIN_LOAD_ERROR));
             }
         });
     }
@@ -163,10 +165,19 @@ public class AdminFoodListFragment extends Fragment {
 
     private void confirmDelete(@NonNull Food food) {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Xoá món ăn")
-                .setMessage("Bạn có chắc muốn xoá \"" + food.getName() + "\"?")
-                .setPositiveButton("Xoá", (d, w) -> deleteFood(food))
-                .setNegativeButton("Huỷ", null)
+                .setTitle(UiTextProvider.get(UiTextKey.ADMIN_DELETE_TITLE))
+                .setMessage(String.format(
+                        UiTextProvider.get(UiTextKey.ADMIN_DELETE_MESSAGE),
+                        food.getName()
+                ))
+                .setPositiveButton(
+                        UiTextProvider.get(UiTextKey.ADMIN_DELETE_CONFIRM),
+                        (d, w) -> deleteFood(food)
+                )
+                .setNegativeButton(
+                        UiTextProvider.get(UiTextKey.ADMIN_DELETE_CANCEL),
+                        null
+                )
                 .show();
     }
 
@@ -178,7 +189,7 @@ public class AdminFoodListFragment extends Fragment {
             public void onSuccess() {
                 if (!isAdded()) return;
 
-                toast("Đã xoá món");
+                toast(UiTextProvider.get(UiTextKey.ADMIN_DELETE_SUCCESS));
                 loadData();
             }
 
@@ -187,7 +198,7 @@ public class AdminFoodListFragment extends Fragment {
                 if (!isAdded()) return;
 
                 progressBar.setVisibility(View.GONE);
-                toast("Không thể xoá món");
+                toast(UiTextProvider.get(UiTextKey.ADMIN_DELETE_ERROR));
             }
         });
     }
@@ -196,7 +207,7 @@ public class AdminFoodListFragment extends Fragment {
     // Utils
     // =====================
 
-    private void toast(String msg) {
+    private void toast(@NonNull String msg) {
         if (!isAdded()) return;
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }

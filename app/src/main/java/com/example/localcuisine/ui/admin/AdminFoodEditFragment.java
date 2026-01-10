@@ -5,12 +5,13 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,9 @@ import com.example.localcuisine.data.repository.AdminFoodRepository;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.model.Region;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.example.localcuisine.ui.i18n.UiTextProvider;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -37,23 +41,38 @@ public class AdminFoodEditFragment extends Fragment {
 
     public static final String ARG_FOOD_ID = "food_id";
 
+    // =====================
+    // Best time (internal)
+    // =====================
+
     private static final String TIME_MORNING = "morning";
     private static final String TIME_NOON = "noon";
     private static final String TIME_EVENING = "evening";
 
-    private static final Map<String, String> BEST_TIME_LABEL_MAP = new HashMap<>();
-    private static final Map<String, String> BEST_TIME_VALUE_MAP = new HashMap<>();
+    /**
+     * internal value -> UiTextKey
+     */
+    private static final Map<String, UiTextKey> BEST_TIME_KEY_MAP = new HashMap<>();
+    /**
+     * Region -> UiTextKey
+     */
+    private static final Map<Region, UiTextKey> REGION_KEY_MAP = new HashMap<>();
 
     static {
-        BEST_TIME_LABEL_MAP.put(TIME_MORNING, "Buổi sáng");
-        BEST_TIME_LABEL_MAP.put(TIME_NOON, "Buổi trưa");
-        BEST_TIME_LABEL_MAP.put(TIME_EVENING, "Buổi tối");
-
-        // reverse map
-        BEST_TIME_VALUE_MAP.put("Buổi sáng", TIME_MORNING);
-        BEST_TIME_VALUE_MAP.put("Buổi trưa", TIME_NOON);
-        BEST_TIME_VALUE_MAP.put("Buổi tối", TIME_EVENING);
+        BEST_TIME_KEY_MAP.put(TIME_MORNING, UiTextKey.ADMIN_BEST_TIME_MORNING);
+        BEST_TIME_KEY_MAP.put(TIME_NOON, UiTextKey.ADMIN_BEST_TIME_NOON);
+        BEST_TIME_KEY_MAP.put(TIME_EVENING, UiTextKey.ADMIN_BEST_TIME_EVENING);
     }
+
+    static {
+        REGION_KEY_MAP.put(Region.NORTH, UiTextKey.REGION_NORTH);
+        REGION_KEY_MAP.put(Region.CENTRAL, UiTextKey.REGION_CENTRAL);
+        REGION_KEY_MAP.put(Region.SOUTH, UiTextKey.REGION_SOUTH);
+    }
+
+    // =====================
+    // Views
+    // =====================
 
     private final Map<FoodType, CheckBox> foodTypeCheckboxMap = new HashMap<>();
 
@@ -63,8 +82,8 @@ public class AdminFoodEditFragment extends Fragment {
     private EditText edtLocation;
     private EditText edtImageUrl;
 
-    private Spinner spRegion;
-    private Spinner spBestTime;
+    private RadioGroup rgRegion;
+    private RadioGroup rgBestTime;
 
     private LinearLayout layoutFoodTypes;
 
@@ -73,9 +92,9 @@ public class AdminFoodEditFragment extends Fragment {
 
     private Food editingFood;
 
-    // --------------------------------------------------
+    // =====================
     // Lifecycle
-    // --------------------------------------------------
+    // =====================
 
     @Nullable
     @Override
@@ -93,7 +112,9 @@ public class AdminFoodEditFragment extends Fragment {
             @Nullable Bundle savedInstanceState
     ) {
         bindViews(view);
-        setupSpinners();
+
+        renderRegionRadios();
+        renderBestTimeRadios();
         renderFoodTypeCheckboxes();
 
         int foodId = getArguments() != null
@@ -111,59 +132,81 @@ public class AdminFoodEditFragment extends Fragment {
         btnCancel.setOnClickListener(v -> close());
     }
 
-    // --------------------------------------------------
-    // View binding
-    // --------------------------------------------------
 
-    private void bindViews(View v) {
+    private void bindViews(@NonNull View v) {
+        TextInputLayout tilName = v.findViewById(R.id.tilName);
+        TextInputLayout tilDescription = v.findViewById(R.id.tilDescription);
+        TextInputLayout tilLocation = v.findViewById(R.id.tilLocation);
+        TextInputLayout tilTags = v.findViewById(R.id.tilTags);
+        TextInputLayout tilImage = v.findViewById(R.id.tilImage);
+
+        tilName.setHint(UiTextProvider.get(UiTextKey.ADMIN_FOOD_HINT_NAME));
+        tilDescription.setHint(UiTextProvider.get(UiTextKey.ADMIN_FOOD_HINT_DESCRIPTION));
+        tilLocation.setHint(UiTextProvider.get(UiTextKey.ADMIN_FOOD_HINT_LOCATION));
+        tilTags.setHint(UiTextProvider.get(UiTextKey.ADMIN_FOOD_HINT_TAGS));
+        tilImage.setHint(UiTextProvider.get(UiTextKey.ADMIN_FOOD_HINT_IMAGE));
+
+        ((TextView) v.findViewById(R.id.tvRegionLabel))
+                .setText(UiTextProvider.get(UiTextKey.ADMIN_REGION_LABEL));
+
+        ((TextView) v.findViewById(R.id.tvBestTimeLabel))
+                .setText(UiTextProvider.get(UiTextKey.ADMIN_BEST_TIME_LABEL));
+
+        ((TextView) v.findViewById(R.id.tvFoodTypeLabel))
+                .setText(UiTextProvider.get(UiTextKey.ADMIN_FOOD_TYPE_LABEL));
+
+        ((TextView) v.findViewById(R.id.tvImageLabel))
+                .setText(UiTextProvider.get(UiTextKey.ADMIN_IMAGE_LABEL));
+
         edtName = v.findViewById(R.id.edtName);
         edtDescription = v.findViewById(R.id.edtDescription);
         edtTags = v.findViewById(R.id.edtTags);
         edtLocation = v.findViewById(R.id.edtLocation);
         edtImageUrl = v.findViewById(R.id.edtImageUrl);
-
-        spRegion = v.findViewById(R.id.spRegion);
-        spBestTime = v.findViewById(R.id.spBestTime);
+        rgRegion = v.findViewById(R.id.rgRegion);
+        rgBestTime = v.findViewById(R.id.rgBestTime);
 
         layoutFoodTypes = v.findViewById(R.id.layoutFoodTypes);
 
         btnSave = v.findViewById(R.id.btnSave);
         btnCancel = v.findViewById(R.id.btnCancel);
+
+        btnSave.setText(UiTextProvider.get(UiTextKey.ADMIN_SAVE));
+        btnCancel.setText(UiTextProvider.get(UiTextKey.ADMIN_CANCEL));
     }
 
-    // --------------------------------------------------
-    // Spinner setup (QUAN TRỌNG)
-    // --------------------------------------------------
+    // =====================
+    // Render
+    // =====================
 
-    private void setupSpinners() {
-        List<String> regions = new ArrayList<>();
+    private void renderRegionRadios() {
+        rgRegion.removeAllViews();
+
         for (Region r : Region.values()) {
-            regions.add(r.name());
+            RadioButton rb = new RadioButton(getContext());
+
+            UiTextKey key = REGION_KEY_MAP.get(r);
+            rb.setText(
+                    key != null
+                            ? UiTextProvider.get(key)
+                            : r.name()
+            );
+
+            rb.setTag(r);
+            rgRegion.addView(rb);
         }
-
-        ArrayAdapter<String> regionAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                regions
-        );
-        regionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spRegion.setAdapter(regionAdapter);
-
-        List<String> timeLabels = new ArrayList<>(BEST_TIME_VALUE_MAP.keySet());
-
-        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                timeLabels
-        );
-        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spBestTime.setAdapter(timeAdapter);
     }
 
+    private void renderBestTimeRadios() {
+        rgBestTime.removeAllViews();
 
-    // --------------------------------------------------
-    // FoodType dynamic rendering
-    // --------------------------------------------------
+        for (Map.Entry<String, UiTextKey> e : BEST_TIME_KEY_MAP.entrySet()) {
+            RadioButton rb = new RadioButton(getContext());
+            rb.setText(UiTextProvider.get(e.getValue()));
+            rb.setTag(e.getKey());
+            rgBestTime.addView(rb);
+        }
+    }
 
     private void renderFoodTypeCheckboxes() {
         layoutFoodTypes.removeAllViews();
@@ -179,21 +222,31 @@ public class AdminFoodEditFragment extends Fragment {
         }
     }
 
-    // --------------------------------------------------
-    // Bind data (EDIT)
-    // --------------------------------------------------
+    // =====================
+    // Bind data
+    // =====================
 
-    private void bindData(Food f) {
+    private void bindData(@NonNull Food f) {
         edtName.setText(f.getName());
         edtDescription.setText(f.getDescription());
         edtLocation.setText(f.getLocation());
         edtImageUrl.setText(f.getImageUrl());
         edtTags.setText(TextUtils.join(", ", f.getTags()));
 
-        selectSpinner(spRegion, f.getRegion().name());
-        String label = BEST_TIME_LABEL_MAP.get(f.getBestTime());
-        if (label != null) {
-            selectSpinner(spBestTime, label);
+        for (int i = 0; i < rgRegion.getChildCount(); i++) {
+            RadioButton rb = (RadioButton) rgRegion.getChildAt(i);
+            if (rb.getTag() == f.getRegion()) {
+                rb.setChecked(true);
+                break;
+            }
+        }
+
+        for (int i = 0; i < rgBestTime.getChildCount(); i++) {
+            RadioButton rb = (RadioButton) rgBestTime.getChildAt(i);
+            if (f.getBestTime().equals(rb.getTag())) {
+                rb.setChecked(true);
+                break;
+            }
         }
 
         for (FoodType t : f.getTypes()) {
@@ -202,31 +255,31 @@ public class AdminFoodEditFragment extends Fragment {
         }
     }
 
-    // --------------------------------------------------
+    // =====================
     // Save
-    // --------------------------------------------------
+    // =====================
 
     private void onSave() {
         String name = edtName.getText().toString().trim();
         if (name.isEmpty()) {
-            toast("Tên món không được để trống");
+            toast(UiTextProvider.get(UiTextKey.ADMIN_FOOD_NAME_REQUIRED));
             return;
         }
 
-        Object regionObj = spRegion.getSelectedItem();
-        Object timeObj = spBestTime.getSelectedItem();
+        int regionId = rgRegion.getCheckedRadioButtonId();
+        int timeId = rgBestTime.getCheckedRadioButtonId();
 
-        if (regionObj == null || timeObj == null) {
-            toast("Vui lòng chọn khu vực và thời điểm");
+        if (regionId == -1 || timeId == -1) {
+            toast(UiTextProvider.get(
+                    UiTextKey.ADMIN_FOOD_REGION_TIME_REQUIRED));
             return;
         }
 
-        // Map LABEL (VN) -> VALUE (internal)
-        String bestTimeValue = BEST_TIME_VALUE_MAP.get(timeObj.toString());
-        if (bestTimeValue == null) {
-            toast("Thời điểm không hợp lệ");
-            return;
-        }
+        RadioButton rbRegion = rgRegion.findViewById(regionId);
+        RadioButton rbTime = rgBestTime.findViewById(timeId);
+
+        Region region = (Region) rbRegion.getTag();
+        String bestTimeValue = rbTime.getTag().toString();
 
         btnSave.setEnabled(false);
 
@@ -234,10 +287,10 @@ public class AdminFoodEditFragment extends Fragment {
                 editingFood != null ? editingFood.getId() : generateId(),
                 name,
                 edtDescription.getText().toString().trim(),
-                Region.valueOf(regionObj.toString()),
+                region,
                 collectFoodTypes(),
                 collectTags(),
-                bestTimeValue, // ✅ LƯU VALUE, KHÔNG PHẢI LABEL
+                bestTimeValue,
                 edtLocation.getText().toString().trim(),
                 edtImageUrl.getText().toString().trim()
         );
@@ -245,9 +298,11 @@ public class AdminFoodEditFragment extends Fragment {
         AdminFoodRepository repo = AdminFoodRepository.getInstance();
 
         if (editingFood == null) {
-            repo.add(newFood, callback("Đã thêm món mới"));
+            repo.add(newFood, callback(
+                    UiTextProvider.get(UiTextKey.ADMIN_FOOD_ADD_SUCCESS)));
         } else {
-            repo.update(newFood, callback("Đã cập nhật món"));
+            repo.update(newFood, callback(
+                    UiTextProvider.get(UiTextKey.ADMIN_FOOD_UPDATE_SUCCESS)));
         }
     }
 
@@ -262,14 +317,14 @@ public class AdminFoodEditFragment extends Fragment {
             @Override
             public void onError(@NonNull Exception e) {
                 btnSave.setEnabled(true);
-                toast("Có lỗi xảy ra");
+                toast(UiTextProvider.get(UiTextKey.ADMIN_ERROR_COMMON));
             }
         };
     }
 
-    // --------------------------------------------------
+    // =====================
     // Close
-    // --------------------------------------------------
+    // =====================
 
     private void close() {
         if (!isAdded()) return;
@@ -287,9 +342,9 @@ public class AdminFoodEditFragment extends Fragment {
         }
     }
 
-    // --------------------------------------------------
+    // =====================
     // Helpers
-    // --------------------------------------------------
+    // =====================
 
     private Set<FoodType> collectFoodTypes() {
         Set<FoodType> set = EnumSet.noneOf(FoodType.class);
@@ -314,20 +369,11 @@ public class AdminFoodEditFragment extends Fragment {
         return list;
     }
 
-    private void selectSpinner(Spinner sp, String value) {
-        for (int i = 0; i < sp.getCount(); i++) {
-            if (value.equals(sp.getItemAtPosition(i))) {
-                sp.setSelection(i);
-                break;
-            }
-        }
-    }
-
     private int generateId() {
         return (int) System.currentTimeMillis();
     }
 
-    private void toast(String msg) {
+    private void toast(@NonNull String msg) {
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.auth.AuthRepository;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,6 +30,23 @@ public class LoginActivity extends AppCompatActivity {
         EditText etPassword = findViewById(R.id.etPassword);
         Button btnLogin = findViewById(R.id.btnLogin);
         TextView btnGoRegister = findViewById(R.id.btnGoRegister);
+        TextView btnForgetPassword = findViewById(R.id.btnForgetPassword);
+
+        btnForgetPassword.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                toast("Vui lòng nhập email.");
+                return;
+            }
+
+            FirebaseAuth.getInstance()
+                    .sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        toast("Nếu email tồn tại, link đặt lại mật khẩu đã được gửi.");
+                    });
+        });
+
 
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();

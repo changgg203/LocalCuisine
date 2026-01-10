@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.localcuisine.R;
 import com.example.localcuisine.model.Food;
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.example.localcuisine.ui.i18n.UiTextProvider;
 
 import java.util.List;
 
@@ -24,17 +26,12 @@ import java.util.List;
 public class AdminFoodAdapter
         extends RecyclerView.Adapter<AdminFoodAdapter.FoodVH> {
 
-    // =====================
-    // Callbacks
-    // =====================
 
     private final List<Food> foods;
     private final OnFoodClickListener clickListener;
-
-    // =====================
-    // Data
-    // =====================
     private final OnFoodLongClickListener longClickListener;
+
+
     public AdminFoodAdapter(
             List<Food> foods,
             OnFoodClickListener clickListener,
@@ -63,7 +60,6 @@ public class AdminFoodAdapter
     ) {
         Food f = foods.get(position);
 
-        // ---------- TEXT ----------
         h.tvName.setText(f.getName());
 
         h.tvRegion.setText(
@@ -72,11 +68,14 @@ public class AdminFoodAdapter
                         : ""
         );
 
-        h.tvBestTime.setText(
-                f.getBestTime() != null
-                        ? "Thời điểm: " + f.getBestTime()
-                        : ""
-        );
+        if (f.getBestTime() != null && !f.getBestTime().isEmpty()) {
+            String label = UiTextProvider.get(UiTextKey.ADMIN_BEST_TIME_LABEL);
+            h.tvBestTime.setText(label + ": " + f.getBestTime());
+            h.tvBestTime.setVisibility(View.VISIBLE);
+        } else {
+            h.tvBestTime.setVisibility(View.GONE);
+        }
+
 
         h.tvLocation.setText(
                 f.getLocation() != null
@@ -112,10 +111,6 @@ public class AdminFoodAdapter
             return false;
         });
     }
-
-    // =====================
-    // Adapter
-    // =====================
 
     @Override
     public int getItemCount() {

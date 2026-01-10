@@ -95,6 +95,40 @@ public class UiTextProvider {
         vi.put(UiTextKey.NAV_FAVORITE, "Yêu thích");
         vi.put(UiTextKey.NAV_NOTIFICATION, "Thông báo");
         vi.put(UiTextKey.NAV_PROFILE, "Hồ sơ");
+        vi.put(UiTextKey.ADMIN_DELETE_TITLE, "Xoá món ăn");
+        vi.put(UiTextKey.ADMIN_DELETE_MESSAGE, "Bạn có chắc muốn xoá \"%s\"?");
+        vi.put(UiTextKey.ADMIN_DELETE_CONFIRM, "Xoá");
+        vi.put(UiTextKey.ADMIN_DELETE_CANCEL, "Huỷ");
+
+        vi.put(UiTextKey.ADMIN_LOAD_ERROR, "Không tải được danh sách món");
+        vi.put(UiTextKey.ADMIN_DELETE_SUCCESS, "Đã xoá món");
+        vi.put(UiTextKey.ADMIN_DELETE_ERROR, "Không thể xoá món");
+        vi.put(UiTextKey.ADMIN_BEST_TIME_LABEL, "Thời điểm");
+        vi.put(UiTextKey.ADMIN_FOOD_NAME_REQUIRED, "Tên món không được để trống");
+        vi.put(UiTextKey.ADMIN_FOOD_REGION_TIME_REQUIRED,
+                "Vui lòng chọn khu vực và thời điểm");
+
+        vi.put(UiTextKey.ADMIN_FOOD_ADD_SUCCESS, "Đã thêm món mới");
+        vi.put(UiTextKey.ADMIN_FOOD_UPDATE_SUCCESS, "Đã cập nhật món");
+        vi.put(UiTextKey.ADMIN_ERROR_COMMON, "Có lỗi xảy ra");
+
+        vi.put(UiTextKey.ADMIN_BEST_TIME_MORNING, "Buổi sáng");
+        vi.put(UiTextKey.ADMIN_BEST_TIME_NOON, "Buổi trưa");
+        vi.put(UiTextKey.ADMIN_BEST_TIME_EVENING, "Buổi tối");
+        vi.put(UiTextKey.ADMIN_FOOD_HINT_NAME, "Tên món ăn");
+        vi.put(UiTextKey.ADMIN_FOOD_HINT_DESCRIPTION, "Mô tả món ăn");
+        vi.put(UiTextKey.ADMIN_FOOD_HINT_TAGS, "Thẻ (phân cách bằng dấu phẩy)");
+        vi.put(UiTextKey.ADMIN_FOOD_HINT_LOCATION, "Địa điểm");
+        vi.put(UiTextKey.ADMIN_FOOD_HINT_IMAGE, "Tên file ảnh (assets)");
+        vi.put(UiTextKey.REGION_NORTH, "Miền Bắc");
+        vi.put(UiTextKey.REGION_CENTRAL, "Miền Trung");
+        vi.put(UiTextKey.REGION_SOUTH, "Miền Nam");
+        vi.put(UiTextKey.ADMIN_SAVE, "Lưu");
+        vi.put(UiTextKey.ADMIN_CANCEL, "Hủy");
+
+        vi.put(UiTextKey.ADMIN_IMAGE_LABEL, "Ảnh món ăn");
+        vi.put(UiTextKey.ADMIN_FOOD_TYPE_LABEL, "Phân loại món");
+        vi.put(UiTextKey.ADMIN_REGION_LABEL, "Khu vực");
 
 
         Map<UiTextKey, String> en = new HashMap<>();
@@ -175,6 +209,40 @@ public class UiTextProvider {
         en.put(UiTextKey.NAV_NOTIFICATION, "Notifications");
         en.put(UiTextKey.NAV_PROFILE, "Profile");
         en.put(UiTextKey.ADMIN_MANAGEMENT, "Management");
+        en.put(UiTextKey.ADMIN_DELETE_TITLE, "Delete food");
+        en.put(UiTextKey.ADMIN_DELETE_MESSAGE, "Are you sure you want to delete \"%s\"?");
+        en.put(UiTextKey.ADMIN_DELETE_CONFIRM, "Delete");
+        en.put(UiTextKey.ADMIN_DELETE_CANCEL, "Cancel");
+
+        en.put(UiTextKey.ADMIN_LOAD_ERROR, "Failed to load food list");
+        en.put(UiTextKey.ADMIN_DELETE_SUCCESS, "Food deleted");
+        en.put(UiTextKey.ADMIN_DELETE_ERROR, "Failed to delete food");
+        en.put(UiTextKey.ADMIN_BEST_TIME_LABEL, "Best time");
+        en.put(UiTextKey.ADMIN_FOOD_NAME_REQUIRED, "Food name is required");
+        en.put(UiTextKey.ADMIN_FOOD_REGION_TIME_REQUIRED,
+                "Please select region and best time");
+
+        en.put(UiTextKey.ADMIN_FOOD_ADD_SUCCESS, "Food added");
+        en.put(UiTextKey.ADMIN_FOOD_UPDATE_SUCCESS, "Food updated");
+        en.put(UiTextKey.ADMIN_ERROR_COMMON, "Something went wrong");
+
+        en.put(UiTextKey.ADMIN_BEST_TIME_MORNING, "Morning");
+        en.put(UiTextKey.ADMIN_BEST_TIME_NOON, "Noon");
+        en.put(UiTextKey.ADMIN_BEST_TIME_EVENING, "Evening");
+        en.put(UiTextKey.ADMIN_FOOD_HINT_NAME, "Food name");
+        en.put(UiTextKey.ADMIN_FOOD_HINT_DESCRIPTION, "Food description");
+        en.put(UiTextKey.ADMIN_FOOD_HINT_TAGS, "Tags (comma separated)");
+        en.put(UiTextKey.ADMIN_FOOD_HINT_LOCATION, "Location");
+        en.put(UiTextKey.ADMIN_FOOD_HINT_IMAGE, "Image file name (assets)");
+        en.put(UiTextKey.REGION_NORTH, "Northern Vietnam");
+        en.put(UiTextKey.REGION_CENTRAL, "Central Vietnam");
+        en.put(UiTextKey.REGION_SOUTH, "Southern Vietnam");
+        en.put(UiTextKey.ADMIN_SAVE, "Save");
+        en.put(UiTextKey.ADMIN_CANCEL, "Cancel");
+
+        en.put(UiTextKey.ADMIN_IMAGE_LABEL, "Food image");
+        en.put(UiTextKey.ADMIN_FOOD_TYPE_LABEL, "Food type");
+        en.put(UiTextKey.ADMIN_REGION_LABEL, "Region");
 
 
         DATA.put("vi", vi);
