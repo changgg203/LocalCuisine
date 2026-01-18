@@ -25,6 +25,7 @@ import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
+import com.example.localcuisine.model.Region;
 import com.example.localcuisine.ui.common.GridSpacingItemDecoration;
 import com.example.localcuisine.ui.i18n.UiText;
 import com.example.localcuisine.ui.i18n.UiTextKey;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 public class HomeFragment extends Fragment {
 
@@ -55,17 +55,15 @@ public class HomeFragment extends Fragment {
     ) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        MaterialToolbar toolbar = view.findViewById(R.id.toolbarHome);
-        toolbar.setSubtitle(
-                UiText.t(UiTextKey.HOME_SUBTITLE)
-        );
 
-        // ===== RecyclerView =====
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbarHome);
+        toolbar.setSubtitle(UiText.t(UiTextKey.HOME_SUBTITLE));
+
         RecyclerView recyclerView = view.findViewById(R.id.recyclerFood);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-
         int spacing = (int) (getResources().getDisplayMetrics().density * 6);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(spacing));
+
         recommenderEngine = new RecommenderEngine();
 
         adapter = new FoodAdapter(
@@ -83,16 +81,12 @@ public class HomeFragment extends Fragment {
                 }
         );
 
-
         recyclerView.setAdapter(adapter);
 
-        // ===== Search =====
         AutoCompleteTextView edtSearch = view.findViewById(R.id.edtSearch);
-        edtSearch.setHint(
-                UiText.t(UiTextKey.HOME_SEARCH_HINT)
-        );
-        List<String> suggestions = new ArrayList<>();
+        edtSearch.setHint(UiText.t(UiTextKey.HOME_SEARCH_HINT));
 
+        List<String> suggestions = new ArrayList<>();
         suggestAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
@@ -105,19 +99,18 @@ public class HomeFragment extends Fragment {
             adapter.filterByQuery(selected);
         });
 
-        // ===== Filter Chips =====
-        ChipGroup chipGroup = view.findViewById(R.id.chipGroupFilters);
-        chipGroup.removeAllViews();
+        ChipGroup chipGroupTypes = view.findViewById(R.id.chipGroupFilters);
+        chipGroupTypes.removeAllViews();
 
         for (FoodType type : FoodType.values()) {
             Chip chip = new Chip(requireContext());
             chip.setText(type.getDisplayName());
             chip.setCheckable(true);
             chip.setTag(type);
-            chipGroup.addView(chip);
+            chipGroupTypes.addView(chip);
         }
 
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+        chipGroupTypes.setOnCheckedStateChangeListener((group, checkedIds) -> {
             List<FoodType> selectedTypes = new ArrayList<>();
             for (int id : checkedIds) {
                 Chip chip = group.findViewById(id);
@@ -128,7 +121,33 @@ public class HomeFragment extends Fragment {
             adapter.filterByTypes(selectedTypes);
         });
 
-        // ===== Load Data (Firebase + fallback) =====
+        ChipGroup chipGroupRegions = view.findViewById(R.id.chipGroupRegions);
+        chipGroupRegions.removeAllViews();
+
+        for (Region region : Region.values()) {
+            if (region != Region.ALL) {
+                Chip chip = new Chip(requireContext());
+                chip.setText(region.getDisplayName());
+                chip.setCheckable(true);
+                chip.setTag(region.name());
+                chipGroupRegions.addView(chip);
+                chip.setChipBackgroundColorResource(R.color.brand_orange_dark);
+                chip.setChipStrokeColorResource(R.color.white);
+                chip.setTextColor(getResources().getColor(R.color.white, null));
+            }
+        }
+
+        chipGroupRegions.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            String region = null;
+            if (!checkedIds.isEmpty()) {
+                Chip chip = group.findViewById(checkedIds.get(0));
+                if (chip != null && chip.getTag() instanceof String) {
+                    region = (String) chip.getTag();
+                }
+            }
+            adapter.filterByRegion(region);
+        });
+
         FoodRepository.ensureLoaded(new FoodRepository.LoadCallback() {
             @Override
             public void onSuccess(@NonNull List<Food> loadedFoods) {
@@ -136,7 +155,6 @@ public class HomeFragment extends Fragment {
 
                 List<Food> recommendedFoods = recommendFoods(loadedFoods);
                 adapter.setData(recommendedFoods);
-
 
                 suggestions.clear();
                 for (Food food : loadedFoods) {
@@ -149,7 +167,6 @@ public class HomeFragment extends Fragment {
             public void onError(@NonNull Exception e) {
                 if (!isAdded()) return;
 
-                // fallback local
                 List<Food> fallback = FoodRepository.getAllFoods();
                 adapter.setData(fallback);
 
@@ -192,7 +209,7 @@ public class HomeFragment extends Fragment {
         user.loggedIn = sm.isLoggedIn();
         user.region = sm.getUserRegion();
 
-        Set<Integer> favoriteIds = sm.getFavoriteFoodIds(); // Set<Integer>
+        Set<Integer> favoriteIds = sm.getFavoriteFoodIds();
         for (Food f : foods) {
             if (favoriteIds.contains(f.getId())) {
                 if (f.getTypes() != null) {
@@ -208,11 +225,7 @@ public class HomeFragment extends Fragment {
 
         user.preferredTypes.addAll(sm.getCachedPreferredTypes());
         user.preferredTags.addAll(sm.getCachedPreferredTags());
-        System.out.println(user.preferredTags);
-        System.out.println(user.preferredTypes);
 
         return user;
     }
-
-
 }

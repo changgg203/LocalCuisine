@@ -1,10 +1,13 @@
 package com.example.localcuisine.model;
 
+import com.example.localcuisine.ui.i18n.UiTextKey;
+import com.example.localcuisine.ui.i18n.UiTextProvider;
+
 public enum Region {
-    NORTH("Miền Bắc"),
-    CENTRAL("Miền Trung"),
-    SOUTH("Miền Nam"),
-    ALL("Tất cả");
+    NORTH("REGION_NORTH"),
+    CENTRAL("REGION_CENTRAL"),
+    SOUTH("REGION_SOUTH"),
+    ALL("REGION_ALL");
 
     private final String displayName;
 
@@ -13,6 +16,6 @@ public enum Region {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return UiTextProvider.get(UiTextKey.valueOf(this.displayName));
     }
 }

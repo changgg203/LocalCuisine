@@ -21,19 +21,23 @@ import java.util.List;
 
 public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
 
-    private final List<Food> originalList;
-    private final List<Food> displayList;
+    private final List<Food> originalList = new ArrayList<>();
+    private final List<Food> displayList = new ArrayList<>();
     private final OnFoodClickListener listener;
-
     private final ExplainProvider explainProvider;
+    private String currentQuery = null;
+    private List<FoodType> selectedTypes = new ArrayList<>();
+    private String selectedRegion = null;
 
     public FoodAdapter(
             List<Food> foodList,
             OnFoodClickListener listener,
             ExplainProvider explainProvider
     ) {
-        this.originalList = new ArrayList<>(foodList);
-        this.displayList = new ArrayList<>(foodList);
+        if (foodList != null) {
+            originalList.addAll(foodList);
+            displayList.addAll(foodList);
+        }
         this.listener = listener;
         this.explainProvider = explainProvider;
     }
@@ -53,22 +57,17 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         holder.txtFoodName.setText(food.getName());
         holder.txtFoodRegion.setText(food.getRegion().getDisplayName());
 
-        // ===== IMAGE RENDER =====
+        // ===== IMAGE =====
         String imageUrl = food.getImageUrl();
-
         if (imageUrl != null && !imageUrl.isEmpty()) {
-
             if (imageUrl.startsWith("http")) {
-                // load từ internet
                 Glide.with(holder.itemView.getContext())
                         .load(imageUrl)
                         .placeholder(R.drawable.placeholder_food)
                         .error(R.drawable.placeholder_food)
                         .centerCrop()
                         .into(holder.imgFood);
-
             } else {
-                // load từ assets
                 Glide.with(holder.itemView.getContext())
                         .load("file:///android_asset/" + imageUrl)
                         .placeholder(R.drawable.placeholder_food)
@@ -76,17 +75,18 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
                         .centerCrop()
                         .into(holder.imgFood);
             }
-
         } else {
             holder.imgFood.setImageResource(R.drawable.placeholder_food);
         }
 
+        // ===== CLICK =====
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onFoodClick(food.getId());
             }
         });
 
+        // ===== EXPLAIN =====
         String explain = explainProvider != null
                 ? explainProvider.getExplainText(food.getId())
                 : null;
@@ -104,63 +104,80 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
         return displayList.size();
     }
 
+
     @SuppressLint("NotifyDataSetChanged")
-    public void filterByTypes(List<FoodType> types) {
+    private void applyFilters() {
         displayList.clear();
 
-        if (types == null || types.isEmpty()) {
-            displayList.addAll(originalList);
-        } else {
-            for (Food food : originalList) {
-                if (!Collections.disjoint(food.getTypes(), types)) {
-                    displayList.add(food);
-                }
-            }
-        }
+        for (Food food : originalList) {
 
-        notifyDataSetChanged();
-    }
-
-    public void filterByQuery(String query) {
-        displayList.clear();
-
-        if (query == null || query.trim().isEmpty()) {
-            displayList.addAll(originalList);
-        } else {
-            String q = query.toLowerCase();
-
-            for (Food food : originalList) {
+            // ===== QUERY =====
+            if (currentQuery != null && !currentQuery.trim().isEmpty()) {
+                String q = currentQuery.toLowerCase();
                 boolean match =
                         food.getName().toLowerCase().contains(q)
                                 || food.getLocation().toLowerCase().contains(q)
                                 || food.getTags().stream()
                                 .anyMatch(tag -> tag.toLowerCase().contains(q));
 
-                if (match) {
-                    displayList.add(food);
+                if (!match) continue;
+            }
+
+            // ===== TYPE =====
+            if (selectedTypes != null && !selectedTypes.isEmpty()) {
+                if (Collections.disjoint(food.getTypes(), selectedTypes)) {
+                    continue;
                 }
             }
+
+            // ===== REGION =====
+            if (selectedRegion != null) {
+                if (!food.getRegion().name().equals(selectedRegion)) {
+                    continue;
+                }
+            }
+
+            displayList.add(food);
         }
 
         notifyDataSetChanged();
     }
 
+
+    public void filterByQuery(String query) {
+        this.currentQuery = query;
+        applyFilters();
+    }
+
+    public void filterByTypes(List<FoodType> types) {
+        this.selectedTypes = types != null ? types : new ArrayList<>();
+        applyFilters();
+    }
+
+    public void filterByRegion(String region) {
+        this.selectedRegion = region;
+        applyFilters();
+    }
+
+
     @SuppressLint("NotifyDataSetChanged")
     public void setData(List<Food> newData) {
         originalList.clear();
-        originalList.addAll(newData);
-
         displayList.clear();
-        displayList.addAll(newData);
+        if (newData != null) {
+            originalList.addAll(newData);
+            displayList.addAll(newData);
+        }
+        currentQuery = null;
+        selectedTypes.clear();
+        selectedRegion = null;
 
         notifyDataSetChanged();
     }
 
-
     public interface ExplainProvider {
         String getExplainText(int foodId);
     }
-
 
     public interface OnFoodClickListener {
         void onFoodClick(int foodId);
@@ -181,5 +198,4 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
             txtExplain = itemView.findViewById(R.id.txtExplain);
         }
     }
-
 }

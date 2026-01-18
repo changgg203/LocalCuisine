@@ -14,29 +14,18 @@ import java.util.Set;
 /**
  * SessionStore
  * <p>
- * Lớp quản lý trạng thái phiên người dùng và các preference nhẹ
- * được lưu cục bộ trên thiết bị.
- * <p>
- * Phục vụ cho:
- * - Kiểm tra đăng nhập cục bộ
- * - Lưu ngữ cảnh người dùng (vùng miền)
- * - Lưu hành vi nhẹ (favorite, preference cache)
- * <p>
- * Không chứa logic xác thực hoặc xử lý server-side.
+ * Quản lý trạng thái phiên người dùng & preference cục bộ.
+ * KHÔNG chứa logic xác thực server.
  */
 public class SessionStore {
 
-    /**
-     * Tên file SharedPreferences
-     */
     private static final String PREF_NAME = "user_session";
 
     private static final String KEY_UID = "firebase_uid";
     private static final String KEY_USER_REGION = "user_region";
+    private static final String KEY_USER_ROLE = "user_role";
 
     private static final String KEY_FAVORITE_FOOD_IDS = "favorite_food_ids";
-
-    // Cached preference (lightweight history)
     private static final String KEY_CACHED_TYPES = "cached_preferred_types";
     private static final String KEY_CACHED_TAGS = "cached_preferred_tags";
 
@@ -46,12 +35,13 @@ public class SessionStore {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-
     public void saveUser(@Nullable String uid) {
         if (uid == null) {
             logout();
         } else {
-            prefs.edit().putString(KEY_UID, uid).apply();
+            prefs.edit()
+                    .putString(KEY_UID, uid)
+                    .apply();
         }
     }
 
@@ -68,14 +58,29 @@ public class SessionStore {
         prefs.edit().clear().apply();
     }
 
-    /**
-     * Lấy vùng miền hiện tại của người dùng
-     *
-     * @return Region đã lưu, mặc định là Region.ALL nếu chưa có hoặc lỗi
-     */
+    public UserRole getUserRole() {
+        String raw = prefs.getString(KEY_USER_ROLE, null);
+        if (raw == null) return UserRole.USER;
+
+        try {
+            return UserRole.valueOf(raw);
+        } catch (Exception e) {
+            return UserRole.USER;
+        }
+    }
+
+    public void setUserRole(UserRole role) {
+        if (role == null) role = UserRole.USER;
+        prefs.edit().putString(KEY_USER_ROLE, role.name()).apply();
+    }
+
+    public boolean isAdmin() {
+        return getUserRole() == UserRole.ADMIN;
+    }
+
     public Region getUserRegion() {
         String raw = prefs.getString(KEY_USER_REGION, null);
-        if (raw == null) return Region.CENTRAL; // mock
+        if (raw == null) return Region.CENTRAL; // mock default
 
         try {
             return Region.valueOf(raw);
@@ -89,9 +94,7 @@ public class SessionStore {
         prefs.edit().putString(KEY_USER_REGION, region.name()).apply();
     }
 
-    /**
-     * Lấy danh sách ID món ăn đã được favorite
-     */
+
     public Set<Integer> getFavoriteFoodIds() {
         Set<String> raw =
                 prefs.getStringSet(KEY_FAVORITE_FOOD_IDS, Collections.emptySet());
@@ -106,14 +109,10 @@ public class SessionStore {
         return result;
     }
 
-    /**
-     * Thêm / gỡ favorite
-     */
     public void toggleFavoriteFood(int foodId) {
-        Set<String> raw =
-                new HashSet<>(prefs.getStringSet(
-                        KEY_FAVORITE_FOOD_IDS, Collections.emptySet()
-                ));
+        Set<String> raw = new HashSet<>(
+                prefs.getStringSet(KEY_FAVORITE_FOOD_IDS, Collections.emptySet())
+        );
 
         String key = String.valueOf(foodId);
         if (raw.contains(key)) {
@@ -125,6 +124,10 @@ public class SessionStore {
         prefs.edit().putStringSet(KEY_FAVORITE_FOOD_IDS, raw).apply();
     }
 
+    public void replaceFavoriteFoodIds(Set<String> ids) {
+        if (ids == null) ids = Collections.emptySet();
+        prefs.edit().putStringSet(KEY_FAVORITE_FOOD_IDS, ids).apply();
+    }
 
     public Set<String> getCachedPreferredTypes() {
         return new HashSet<>(
@@ -143,7 +146,6 @@ public class SessionStore {
 
         Set<String> cached = getCachedPreferredTypes();
         cached.addAll(types);
-
         prefs.edit().putStringSet(KEY_CACHED_TYPES, cached).apply();
     }
 
@@ -152,22 +154,13 @@ public class SessionStore {
 
         Set<String> cached = getCachedPreferredTags();
         cached.addAll(tags);
-
         prefs.edit().putStringSet(KEY_CACHED_TAGS, cached).apply();
     }
 
-    /**
-     * Clear cache preference (optional, dùng khi cần reset)
-     */
     public void clearCachedPreferences() {
         prefs.edit()
                 .remove(KEY_CACHED_TYPES)
                 .remove(KEY_CACHED_TAGS)
                 .apply();
-    }
-
-    public void replaceFavoriteFoodIds(Set<String> ids) {
-        if (ids == null) ids = Collections.emptySet();
-        prefs.edit().putStringSet(KEY_FAVORITE_FOOD_IDS, ids).apply();
     }
 }

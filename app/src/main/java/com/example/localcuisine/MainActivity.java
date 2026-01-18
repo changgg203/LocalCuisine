@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import com.example.localcuisine.data.auth.SessionStore;
 import com.example.localcuisine.data.auth.UserSessionSync;
 import com.example.localcuisine.data.repository.FoodRepository;
+import com.example.localcuisine.data.repository.UserRepository;
+import com.example.localcuisine.data.user.UserProfile;
 import com.example.localcuisine.databinding.ActivityMainBinding;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.ui.auth.LoginActivity;
@@ -26,19 +28,28 @@ import com.google.android.material.badge.BadgeDrawable;
 
 import java.util.List;
 
+/**
+ * MainActivity
+ * <p>
+ * - Bootstrap user role (ADMIN / USER) trước khi setup UI
+ * - Admin: chỉ có Profile
+ * - User: full navigation
+ */
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private int currentTab = R.id.navigation_home;
+    private SessionStore session;
+    private boolean isAdmin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SessionStore session = new SessionStore(this);
+        session = new SessionStore(this);
+
+        // ===== Auth check =====
         if (!session.isLoggedIn()) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            redirectToLogin();
             return;
         }
 
@@ -53,36 +64,106 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setBottomNavText();
         setSupportActionBar(binding.toolbarHome);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        // ===== Preload food data =====
-        FoodRepository.ensureLoaded(new FoodRepository.LoadCallback() {
+        setBottomNavText();
+
+        bootstrapUserRole(savedInstanceState);
+    }
+
+    /**
+     * Load UserProfile để xác định role
+     * -> SAU KHI BIẾT ROLE mới setup navigation
+     */
+    private void bootstrapUserRole(Bundle savedInstanceState) {
+        new UserRepository().loadMyProfile(new UserRepository.LoadProfileCallback() {
             @Override
-            public void onSuccess(List<Food> foods) {
+            public void onSuccess(UserProfile profile) {
+                isAdmin = profile.isAdmin;
+                setupAfterRoleResolved(savedInstanceState);
+            }
+
+            @Override
+            public void onNotFound() {
+                isAdmin = false;
+                setupAfterRoleResolved(savedInstanceState);
             }
 
             @Override
             public void onError(Exception e) {
+                isAdmin = false;
+                setupAfterRoleResolved(savedInstanceState);
             }
         });
+    }
+
+    /**
+     * Chỉ chạy SAU KHI đã biết isAdmin
+     */
+    private void setupAfterRoleResolved(Bundle savedInstanceState) {
+        // ===== Preload data (user only) =====
+        if (!isAdmin) {
+            FoodRepository.ensureLoaded(new FoodRepository.LoadCallback() {
+                @Override
+                public void onSuccess(List<Food> foods) {
+                }
+
+                @Override
+                public void onError(Exception e) {
+                }
+            });
+        }
+
+        // ===== Setup navigation =====
+        if (isAdmin) {
+            setupAdminMode();
+        } else {
+            setupUserMode();
+        }
 
         if (savedInstanceState == null) {
-            switchTab(R.id.navigation_home);
+            switchTab(isAdmin
+                    ? R.id.navigation_profile
+                    : R.id.navigation_home);
         }
 
         updateNotificationBadge();
+    }
 
+
+    private void setupAdminMode() {
+        Menu menu = binding.navView.getMenu();
+        if (menu == null) return;
+
+        menu.findItem(R.id.navigation_home).setVisible(false);
+        menu.findItem(R.id.navigation_favorite).setVisible(false);
+        menu.findItem(R.id.navigation_notifications).setVisible(false);
+        menu.findItem(R.id.navigation_profile).setVisible(true);
+
+        binding.navView.removeBadge(R.id.navigation_notifications);
+
+        binding.navView.setOnItemSelectedListener(item -> {
+            switchTab(R.id.navigation_profile);
+            return true;
+        });
+    }
+
+    private void setupUserMode() {
         binding.navView.setOnItemSelectedListener(item -> {
             switchTab(item.getItemId());
             return true;
         });
     }
 
+
     private void switchTab(int tabId) {
+        if (isAdmin && tabId != R.id.navigation_profile) {
+            return;
+        }
+
         Fragment fragment;
 
         if (tabId == R.id.navigation_home) {
@@ -101,13 +182,12 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.nav_container, fragment)
                 .commit();
-
-        currentTab = tabId;
     }
 
     public void openFoodDetail(int foodId) {
-        Fragment fragment = FoodDetailFragment.newInstance(foodId);
+        if (isAdmin) return;
 
+        Fragment fragment = FoodDetailFragment.newInstance(foodId);
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.nav_container, fragment)
@@ -115,23 +195,27 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void openNotificationDetail(String title, String content) {
+        if (isAdmin) return;
+
+        Fragment fragment = NotificationDetailFragment.newInstance(title, content);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+
     public void updateNotificationBadge() {
-        String userId = new SessionStore(this).getUserId();
+        if (isAdmin) return;
 
         BadgeDrawable badge =
                 binding.navView.getOrCreateBadge(R.id.navigation_notifications);
 
+        // TODO: set number / visibility
     }
 
-    public void openNotificationDetail(String title, String content) {
-        Fragment f = NotificationDetailFragment.newInstance(title, content);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.nav_container, f)
-                .addToBackStack(null)
-                .commit();
-    }
 
     private void setBottomNavText() {
         Menu menu = binding.navView.getMenu();
@@ -154,5 +238,11 @@ public class MainActivity extends AppCompatActivity {
         if (profile != null) {
             profile.setTitle(UiText.t(UiTextKey.NAV_PROFILE));
         }
+    }
+
+
+    private void redirectToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 }

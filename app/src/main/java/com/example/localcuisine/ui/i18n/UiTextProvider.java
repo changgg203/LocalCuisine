@@ -234,9 +234,9 @@ public class UiTextProvider {
         en.put(UiTextKey.ADMIN_FOOD_HINT_TAGS, "Tags (comma separated)");
         en.put(UiTextKey.ADMIN_FOOD_HINT_LOCATION, "Location");
         en.put(UiTextKey.ADMIN_FOOD_HINT_IMAGE, "Image file name (assets)");
-        en.put(UiTextKey.REGION_NORTH, "Northern Vietnam");
-        en.put(UiTextKey.REGION_CENTRAL, "Central Vietnam");
-        en.put(UiTextKey.REGION_SOUTH, "Southern Vietnam");
+        en.put(UiTextKey.REGION_NORTH, "Northern VN");
+        en.put(UiTextKey.REGION_CENTRAL, "Central VN");
+        en.put(UiTextKey.REGION_SOUTH, "Southern VN");
         en.put(UiTextKey.ADMIN_SAVE, "Save");
         en.put(UiTextKey.ADMIN_CANCEL, "Cancel");
 

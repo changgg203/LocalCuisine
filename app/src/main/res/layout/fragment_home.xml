@@ -36,7 +36,6 @@
                     android:id="@+id/edtSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint=""
                     android:padding="@dimen/space_s"
                     android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -44,7 +43,36 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fillViewport="true"
                 android:paddingTop="@dimen/space_s"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupRegions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:chipSpacingHorizontal="8dp"
+                        app:chipSpacingVertical="4dp"
+                        app:chipStrokeColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:selectionRequired="false"
+                        app:singleSelection="true" />
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+
+            <!-- Type filter -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/space_xs"
                 android:scrollbars="none">
 
                 <com.google.android.material.chip.ChipGroup

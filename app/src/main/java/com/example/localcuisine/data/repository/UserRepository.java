@@ -1,8 +1,13 @@
 package com.example.localcuisine.data.repository;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
+import com.example.localcuisine.data.auth.SessionStore;
+import com.example.localcuisine.data.auth.UserRole;
 import com.example.localcuisine.data.user.UserProfile;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
@@ -12,9 +17,25 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * UserRepository
+ * <p>
+ * - Load / save UserProfile từ Firestore
+ * - Bootstrap admin role vào SessionStore
+ * <p>
+ * COMPATIBLE với code cũ:
+ * - Vẫn dùng được new UserRepository()
+ */
 public class UserRepository {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final Context appContext;
+
+    // ===== Constructor COMPAT =====
+    public UserRepository() {
+        FirebaseApp app = FirebaseApp.getInstance();
+        this.appContext = app.getApplicationContext();
+    }
 
     // ===================== UID =====================
 
@@ -45,14 +66,27 @@ public class UserRepository {
                 .document(uid)
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        callback.onSuccess(UserProfile.fromDocument(uid, doc));
-                    } else {
+                    if (!doc.exists()) {
+                        // Không có profile → mặc định USER
+                        syncRole(false);
                         callback.onNotFound();
+                        return;
                     }
+
+                    UserProfile profile = UserProfile.fromDocument(uid, doc);
+
+                    // ===== BOOTSTRAP ROLE =====
+                    syncRole(profile.isAdmin);
+
+                    callback.onSuccess(profile);
                 })
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(e -> {
+                    syncRole(false);
+                    callback.onError(e);
+                });
     }
+
+    // ===================== SAVE PROFILE =====================
 
     public void saveMyProfile(
             String displayName,
@@ -87,7 +121,14 @@ public class UserRepository {
                 .addOnFailureListener(callback::onError);
     }
 
-    // ===================== SAVE / UPDATE PROFILE =====================
+    // ===================== ROLE SYNC =====================
+
+    private void syncRole(boolean isAdmin) {
+        SessionStore session = new SessionStore(appContext);
+        session.setUserRole(isAdmin ? UserRole.ADMIN : UserRole.USER);
+    }
+
+    // ===================== CALLBACK =====================
 
     public interface LoadProfileCallback {
         void onSuccess(UserProfile profile);
