@@ -2,30 +2,40 @@ package com.example.localcuisine.ui.home;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localcuisine.MainActivity;
 import com.example.localcuisine.R;
 import com.example.localcuisine.data.auth.SessionStore;
+import com.example.localcuisine.data.chatbot.GeminiService;
 import com.example.localcuisine.data.recommend.core.RecommendationContext;
 import com.example.localcuisine.data.recommend.core.RecommendationResult;
 import com.example.localcuisine.data.recommend.core.RecommenderEngine;
 import com.example.localcuisine.data.recommend.signal.PreferenceTracker;
 import com.example.localcuisine.data.repository.FoodRepository;
 import com.example.localcuisine.data.user.UserProfile;
+import com.example.localcuisine.model.ChatMessage;
 import com.example.localcuisine.model.Food;
 import com.example.localcuisine.model.FoodType;
 import com.example.localcuisine.model.Region;
+import com.example.localcuisine.ui.chatbot.ChatbotAdapter;
 import com.example.localcuisine.ui.common.GridSpacingItemDecoration;
 import com.example.localcuisine.ui.i18n.UiText;
 import com.example.localcuisine.ui.i18n.UiTextKey;
@@ -45,6 +55,17 @@ public class HomeFragment extends Fragment {
     private FoodAdapter adapter;
     private ArrayAdapter<String> suggestAdapter;
     private RecommenderEngine recommenderEngine;
+    
+    // Chatbot components
+    private GeminiService geminiService;
+    private ChatbotAdapter chatbotAdapter;
+    private View chatContainer;
+    private RecyclerView recyclerChatMessages;
+    private EditText edtChatInput;
+    private View btnSendMessage;
+    private ImageButton btnToggleChatbot;
+    private ProgressBar progressChatbot;
+    private boolean isChatbotExpanded = false; // Mặc định thu gọn
 
     @Nullable
     @Override
@@ -178,7 +199,174 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // Setup Chatbot
+        setupChatbot(view);
+
         return view;
+    }
+    
+    private void setupChatbot(View view) {
+        // Luôn hiển thị chatbot widget
+        View chatbotWidget = view.findViewById(R.id.chatbotWidget);
+        if (chatbotWidget == null) {
+            return; // Widget không tồn tại
+        }
+        
+        // Đảm bảo chatbot luôn hiển thị
+        chatbotWidget.setVisibility(View.VISIBLE);
+        
+        // Khởi tạo service
+        try {
+            geminiService = new GeminiService();
+        } catch (Exception e) {
+            // Vẫn hiển thị chatbot nhưng thông báo lỗi
+            geminiService = null;
+        }
+
+        chatContainer = view.findViewById(R.id.chatContainer);
+        recyclerChatMessages = view.findViewById(R.id.recyclerChatMessages);
+        edtChatInput = view.findViewById(R.id.edtChatInput);
+        btnSendMessage = view.findViewById(R.id.btnSendMessage);
+        btnToggleChatbot = view.findViewById(R.id.btnToggleChatbot);
+        progressChatbot = view.findViewById(R.id.progressChatbot);
+        
+        if (chatContainer == null || recyclerChatMessages == null || edtChatInput == null || 
+            btnSendMessage == null || btnToggleChatbot == null) {
+            return; // Các view không tồn tại
+        }
+
+        // Setup RecyclerView for messages
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
+        layoutManager.setStackFromEnd(true);
+        recyclerChatMessages.setLayoutManager(layoutManager);
+        chatbotAdapter = new ChatbotAdapter();
+        recyclerChatMessages.setAdapter(chatbotAdapter);
+
+        // Add welcome message
+        String welcomeText;
+        if (geminiService == null) {
+            welcomeText = "⚠️ Chatbot chưa được cấu hình. Vui lòng thêm GEMINI_API_KEY vào gradle.properties để sử dụng tính năng này.";
+        } else {
+            welcomeText = "Xin chào! 👋 Tôi là trợ lý ẩm thực AI của Local Cuisine.\n\nTôi có thể giúp bạn:\n• Tìm hiểu về món ăn địa phương\n• Gợi ý món ăn phù hợp\n• Trả lời câu hỏi về ẩm thực Việt Nam\n\nBạn muốn hỏi gì?";
+        }
+        ChatMessage welcomeMessage = new ChatMessage(welcomeText, ChatMessage.MessageType.BOT);
+        chatbotAdapter.addMessage(welcomeMessage);
+
+        // Toggle chatbot expand/collapse
+        // Mặc định thu gọn - chỉ hiển thị header
+        chatContainer.setVisibility(View.GONE);
+        btnToggleChatbot.setImageResource(android.R.drawable.arrow_down_float);
+        
+        btnToggleChatbot.setOnClickListener(v -> {
+            isChatbotExpanded = !isChatbotExpanded;
+            if (isChatbotExpanded) {
+                chatContainer.setVisibility(View.VISIBLE);
+                btnToggleChatbot.setImageResource(android.R.drawable.arrow_up_float);
+            } else {
+                chatContainer.setVisibility(View.GONE);
+                btnToggleChatbot.setImageResource(android.R.drawable.arrow_down_float);
+            }
+        });
+
+        // Click header to toggle
+        View chatbotHeader = view.findViewById(R.id.chatbotHeader);
+        if (chatbotHeader != null) {
+            chatbotHeader.setOnClickListener(v -> btnToggleChatbot.performClick());
+        }
+
+        // Send message
+        btnSendMessage.setOnClickListener(v -> sendChatMessage());
+
+        // Enable/disable send button based on input
+        edtChatInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                btnSendMessage.setEnabled(s.toString().trim().length() > 0);
+            }
+        });
+    }
+
+    private void sendChatMessage() {
+        String message = edtChatInput.getText().toString().trim();
+        if (message.isEmpty()) {
+            return;
+        }
+        
+        if (geminiService == null) {
+            // Hiển thị thông báo lỗi
+            ChatMessage errorMessage = new ChatMessage(
+                "⚠️ Chatbot chưa được cấu hình. Vui lòng thêm GEMINI_API_KEY vào gradle.properties.",
+                ChatMessage.MessageType.BOT
+            );
+            chatbotAdapter.addMessage(errorMessage);
+            recyclerChatMessages.post(() -> {
+                if (chatbotAdapter.getItemCount() > 0) {
+                    recyclerChatMessages.smoothScrollToPosition(chatbotAdapter.getItemCount() - 1);
+                }
+            });
+            edtChatInput.setText("");
+            return;
+        }
+
+        // Add user message to chat
+        ChatMessage userMessage = new ChatMessage(message, ChatMessage.MessageType.USER);
+        chatbotAdapter.addMessage(userMessage);
+        recyclerChatMessages.post(() -> {
+            if (chatbotAdapter.getItemCount() > 0) {
+                recyclerChatMessages.smoothScrollToPosition(chatbotAdapter.getItemCount() - 1);
+            }
+        });
+
+        // Clear input
+        edtChatInput.setText("");
+        btnSendMessage.setEnabled(false);
+
+        // Show loading
+        progressChatbot.setVisibility(View.VISIBLE);
+
+        // Send to Gemini
+        geminiService.sendMessage(message, new GeminiService.ChatCallback() {
+            @Override
+            public void onSuccess(String response) {
+                if (!isAdded()) return;
+
+                progressChatbot.setVisibility(View.GONE);
+
+                // Add bot response
+                ChatMessage botMessage = new ChatMessage(response, ChatMessage.MessageType.BOT);
+                chatbotAdapter.addMessage(botMessage);
+                recyclerChatMessages.post(() -> {
+                    if (chatbotAdapter.getItemCount() > 0) {
+                        recyclerChatMessages.smoothScrollToPosition(chatbotAdapter.getItemCount() - 1);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+
+                progressChatbot.setVisibility(View.GONE);
+
+                // Show error message
+                ChatMessage errorMessage = new ChatMessage(
+                    "Xin lỗi, đã có lỗi xảy ra: " + error + ". Vui lòng thử lại sau.",
+                    ChatMessage.MessageType.BOT
+                );
+                chatbotAdapter.addMessage(errorMessage);
+                recyclerChatMessages.post(() -> {
+                    if (chatbotAdapter.getItemCount() > 0) {
+                        recyclerChatMessages.smoothScrollToPosition(chatbotAdapter.getItemCount() - 1);
+                    }
+                });
+            }
+        });
     }
 
     private List<Food> recommendFoods(List<Food> foods) {
