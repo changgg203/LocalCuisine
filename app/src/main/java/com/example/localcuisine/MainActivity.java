@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
 
         setBottomNavText();
 
+        // FAB Chat - sẽ được điều chỉnh theo role sau khi biết isAdmin
+        binding.fabChat.setOnClickListener(v -> openChat());
+
         bootstrapUserRole(savedInstanceState);
     }
 
@@ -145,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding.navView.removeBadge(R.id.navigation_notifications);
 
+        // Admin không cần chat FAB
+        binding.fabChat.setVisibility(android.view.View.GONE);
+
         binding.navView.setOnItemSelectedListener(item -> {
             switchTab(R.id.navigation_profile);
             return true;
@@ -152,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupUserMode() {
+        // Show chat FAB for regular users
+        binding.fabChat.setVisibility(android.view.View.VISIBLE);
+
         binding.navView.setOnItemSelectedListener(item -> {
             switchTab(item.getItemId());
             return true;
@@ -199,6 +208,18 @@ public class MainActivity extends AppCompatActivity {
         if (isAdmin) return;
 
         Fragment fragment = NotificationDetailFragment.newInstance(title, content);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    // Mở giao diện chat (từ FAB)
+    public void openChat() {
+        if (isAdmin) return;
+
+        Fragment fragment = new com.example.localcuisine.ui.chatbot.ChatFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.nav_container, fragment)

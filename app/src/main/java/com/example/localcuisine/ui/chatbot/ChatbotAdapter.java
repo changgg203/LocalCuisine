@@ -22,6 +22,15 @@ public class ChatbotAdapter extends RecyclerView.Adapter<ChatbotAdapter.MessageV
         this.messages = new ArrayList<>();
     }
 
+    public void setMessages(List<ChatMessage> messages) {
+        this.messages = messages != null ? messages : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    public List<ChatMessage> getMessages() {
+        return messages;
+    }
+
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

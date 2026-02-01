@@ -45,7 +45,7 @@ public class GeminiService {
     private static final String SYSTEM_PROMPT =
             "Bạn là chatbot hỗ trợ của ứng dụng Local Cuisine – ứng dụng về ẩm thực Việt Nam. "
                     + "Hãy trả lời bằng tiếng Việt, thân thiện, ngắn gọn, dễ hiểu, "
-                    + "ưu tiên gợi ý món ăn, giải thích nguồn gốc, vùng miền và cách thưởng thức.";
+                    + "ưu tiên gợi ý món ăn, giải thích nguồn gốc, vùng miền ,nguyên liệu của món ăn và cách thưởng thức.";
 
     private final OkHttpClient client = new OkHttpClient();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();

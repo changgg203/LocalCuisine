@@ -30,45 +30,57 @@
             android:padding="14dp">
 
             <ImageView
-                android:layout_width="28dp"
+                android:layout_width="0dp"
                 android:layout_height="28dp"
                 android:src="@android:drawable/ic_menu_help"
                 app:tint="@color/white" />
-
+<!--            android:src="@android:drawable/ic_menu_help"-->
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:text="🤖 Trợ lý ẩm thực AI"
+                android:text="     Cùng nhau khám phá ẩm thực nhé"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <!-- Clear history button -->
+            <ImageButton
+                android:id="@+id/btnClearHistory"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="5dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Xoá lịch sử"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="@color/white" />
 
             <ImageButton
                 android:id="@+id/btnToggleChatbot"
-                android:layout_width="36dp"
+                android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Mở rộng/Thu gọn"
                 android:src="@android:drawable/arrow_down_float"
                 app:tint="@color/white" />
-
+<!--            android:src="@android:drawable/arrow_down_float"-->
         </LinearLayout>
 
-        <!-- Chat Container - Mặc định thu gọn -->
-        <LinearLayout
+        <!-- Chat Container - Mặc định thu gọn; input được neo ở đáy để luôn cố định -->
+        <RelativeLayout
             android:id="@+id/chatContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:visibility="gone">
 
-            <!-- Messages Area -->
+            <!-- Messages Area - ở trên input, chiếm không gian còn lại -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerChatMessages"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/chatInputLayout"
                 android:background="@color/bg"
                 android:clipToPadding="false"
                 android:paddingStart="8dp"
@@ -83,15 +95,17 @@
                 style="?android:attr/progressBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="-40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@id/chatInputLayout"
                 android:layout_marginBottom="8dp"
                 android:visibility="gone" />
 
-            <!-- Input Area -->
+            <!-- Input Area - cố định ở đáy -->
             <LinearLayout
+                android:id="@+id/chatInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:background="@color/surface"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -114,7 +128,8 @@
                     android:paddingBottom="10dp"
                     android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:gravity="center_vertical" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSendMessage"
@@ -134,8 +149,8 @@
 
             </LinearLayout>
 
-        </LinearLayout>
+        </RelativeLayout>
 
-    </LinearLayout>
+        </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

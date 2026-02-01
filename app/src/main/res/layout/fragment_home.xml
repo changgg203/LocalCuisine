@@ -96,10 +96,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Chatbot Widget -->
-            <include
-                android:id="@+id/chatbotWidget"
-                layout="@layout/widget_chatbot" />
+            <!-- Chatbot Widget (đã ẩn theo yêu cầu) -->
+            <!-- include android:id="@+id/chatbotWidget" layout="@layout/widget_chatbot" / -->
 
             <!-- Food RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView

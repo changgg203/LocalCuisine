@@ -199,98 +199,13 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Setup Chatbot
-        setupChatbot(view);
+        // Chatbot widget removed from Home (use FAB to open full chat)
 
         return view;
     }
     
-    private void setupChatbot(View view) {
-        // Luôn hiển thị chatbot widget
-        View chatbotWidget = view.findViewById(R.id.chatbotWidget);
-        if (chatbotWidget == null) {
-            return; // Widget không tồn tại
-        }
-        
-        // Đảm bảo chatbot luôn hiển thị
-        chatbotWidget.setVisibility(View.VISIBLE);
-        
-        // Khởi tạo service
-        try {
-            geminiService = new GeminiService();
-        } catch (Exception e) {
-            // Vẫn hiển thị chatbot nhưng thông báo lỗi
-            geminiService = null;
-        }
-
-        chatContainer = view.findViewById(R.id.chatContainer);
-        recyclerChatMessages = view.findViewById(R.id.recyclerChatMessages);
-        edtChatInput = view.findViewById(R.id.edtChatInput);
-        btnSendMessage = view.findViewById(R.id.btnSendMessage);
-        btnToggleChatbot = view.findViewById(R.id.btnToggleChatbot);
-        progressChatbot = view.findViewById(R.id.progressChatbot);
-        
-        if (chatContainer == null || recyclerChatMessages == null || edtChatInput == null || 
-            btnSendMessage == null || btnToggleChatbot == null) {
-            return; // Các view không tồn tại
-        }
-
-        // Setup RecyclerView for messages
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
-        layoutManager.setStackFromEnd(true);
-        recyclerChatMessages.setLayoutManager(layoutManager);
-        chatbotAdapter = new ChatbotAdapter();
-        recyclerChatMessages.setAdapter(chatbotAdapter);
-
-        // Add welcome message
-        String welcomeText;
-        if (geminiService == null) {
-            welcomeText = "⚠️ Chatbot chưa được cấu hình. Vui lòng thêm GEMINI_API_KEY vào gradle.properties để sử dụng tính năng này.";
-        } else {
-            welcomeText = "Xin chào! 👋 Tôi là trợ lý ẩm thực AI của Local Cuisine.\n\nTôi có thể giúp bạn:\n• Tìm hiểu về món ăn địa phương\n• Gợi ý món ăn phù hợp\n• Trả lời câu hỏi về ẩm thực Việt Nam\n\nBạn muốn hỏi gì?";
-        }
-        ChatMessage welcomeMessage = new ChatMessage(welcomeText, ChatMessage.MessageType.BOT);
-        chatbotAdapter.addMessage(welcomeMessage);
-
-        // Toggle chatbot expand/collapse
-        // Mặc định thu gọn - chỉ hiển thị header
-        chatContainer.setVisibility(View.GONE);
-        btnToggleChatbot.setImageResource(android.R.drawable.arrow_down_float);
-        
-        btnToggleChatbot.setOnClickListener(v -> {
-            isChatbotExpanded = !isChatbotExpanded;
-            if (isChatbotExpanded) {
-                chatContainer.setVisibility(View.VISIBLE);
-                btnToggleChatbot.setImageResource(android.R.drawable.arrow_up_float);
-            } else {
-                chatContainer.setVisibility(View.GONE);
-                btnToggleChatbot.setImageResource(android.R.drawable.arrow_down_float);
-            }
-        });
-
-        // Click header to toggle
-        View chatbotHeader = view.findViewById(R.id.chatbotHeader);
-        if (chatbotHeader != null) {
-            chatbotHeader.setOnClickListener(v -> btnToggleChatbot.performClick());
-        }
-
-        // Send message
-        btnSendMessage.setOnClickListener(v -> sendChatMessage());
-
-        // Enable/disable send button based on input
-        edtChatInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                btnSendMessage.setEnabled(s.toString().trim().length() > 0);
-            }
-        });
-    }
+    // Chatbot widget removed from Home; logic moved to full-screen ChatFragment.
+    // The setup method was removed to avoid referencing deleted resource IDs.
 
     private void sendChatMessage() {
         String message = edtChatInput.getText().toString().trim();
