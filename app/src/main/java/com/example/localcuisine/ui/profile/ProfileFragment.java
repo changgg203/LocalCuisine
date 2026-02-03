@@ -40,6 +40,7 @@ public class ProfileFragment extends Fragment {
 
     private Button btnEditProfile;
     private Button btnChangeLanguage;
+    private Button btnChangePassword;
     private Button btnAdminManage;
     private Button btnLogout;
 
@@ -71,6 +72,7 @@ public class ProfileFragment extends Fragment {
 
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnChangeLanguage = view.findViewById(R.id.btnChangeLanguage);
+        btnChangePassword = view.findViewById(R.id.btnChangePassword);
         btnAdminManage = view.findViewById(R.id.btnAdminManage);
         btnLogout = view.findViewById(R.id.btnLogout);
     }
@@ -78,6 +80,7 @@ public class ProfileFragment extends Fragment {
     private void setupTexts() {
         btnEditProfile.setText(UiText.t(UiTextKey.PROFILE_EDIT));
         btnChangeLanguage.setText(UiText.t(UiTextKey.PROFILE_CHANGE_LANGUAGE));
+        btnChangePassword.setText(UiText.t(UiTextKey.PROFILE_CHANGE_PASSWORD));
         btnAdminManage.setText(UiText.t(UiTextKey.ADMIN_MANAGEMENT));
         btnLogout.setText(UiText.t(UiTextKey.PROFILE_LOGOUT));
     }
@@ -93,6 +96,15 @@ public class ProfileFragment extends Fragment {
         );
 
         btnChangeLanguage.setOnClickListener(v -> showLanguageDialog());
+
+        btnChangePassword.setOnClickListener(v ->
+                requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_container, new ChangePasswordFragment())
+                        .addToBackStack(null)
+                        .commit()
+        );
 
         btnAdminManage.setOnClickListener(v -> openAdmin());
 

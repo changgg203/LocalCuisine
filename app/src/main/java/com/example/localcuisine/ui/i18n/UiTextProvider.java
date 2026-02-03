@@ -22,6 +22,15 @@ public class UiTextProvider {
         vi.put(UiTextKey.ERROR_COMMON, "Có lỗi xảy ra");
         vi.put(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK, "Người dùng");
         vi.put(UiTextKey.PROFILE_CHANGE_LANGUAGE, "Ngôn ngữ");
+        vi.put(UiTextKey.PROFILE_CHANGE_PASSWORD, "Đổi mật khẩu");
+        vi.put(UiTextKey.CHANGE_PASSWORD_TITLE, "Đổi mật khẩu");
+        vi.put(UiTextKey.CHANGE_PASSWORD_CURRENT_HINT, "Mật khẩu hiện tại");
+        vi.put(UiTextKey.CHANGE_PASSWORD_NEW_HINT, "Mật khẩu mới");
+        vi.put(UiTextKey.CHANGE_PASSWORD_CONFIRM_HINT, "Xác nhận mật khẩu mới");
+        vi.put(UiTextKey.CHANGE_PASSWORD_SAVE, "Lưu");
+        vi.put(UiTextKey.CHANGE_PASSWORD_SUCCESS, "Đổi mật khẩu thành công");
+        vi.put(UiTextKey.CHANGE_PASSWORD_ERROR, "Không thể đổi mật khẩu");
+        vi.put(UiTextKey.CHANGE_PASSWORD_MISMATCH, "Mật khẩu mới không khớp");
         vi.put(UiTextKey.LANG_DIALOG_TITLE, "Thay đổi ngôn ngữ");
         vi.put(UiTextKey.LANG_DIALOG_MESSAGE, "Tính năng này sẽ được cập nhật sau.");
         vi.put(UiTextKey.LANG_DIALOG_OK, "OK");
@@ -144,6 +153,7 @@ public class UiTextProvider {
         en.put(UiTextKey.LANG_EN, "English");
         en.put(UiTextKey.PROFILE_EDIT, "Edit profile");
         en.put(UiTextKey.PROFILE_CHANGE_LANGUAGE, "Language");
+        en.put(UiTextKey.PROFILE_CHANGE_PASSWORD, "Change Password");
         en.put(UiTextKey.PROFILE_LOGOUT, "Log out");
         en.put(UiTextKey.PROFILE_DISPLAY_NAME_FALLBACK, "User");
         en.put(UiTextKey.LOGOUT_TITLE, "Log out");

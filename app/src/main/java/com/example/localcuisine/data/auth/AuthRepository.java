@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 
 /**
  * AuthRepository
@@ -159,5 +161,33 @@ public class AuthRepository {
          * @param message Thông báo lỗi
          */
         void onError(String message);
+    }
+
+    /**
+     * Callback cho thao tác đổi mật khẩu
+     */
+    public interface PasswordChangeCallback {
+        void onSuccess();
+        void onError(String message);
+    }
+
+    /**
+     * Đổi mật khẩu cho user hiện tại (cần reauthenticate)
+     */
+    public void changePassword(@NonNull String email, @NonNull String currentPassword, @NonNull String newPassword, @NonNull PasswordChangeCallback callback) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            callback.onError("Not logged in");
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, currentPassword);
+        user.reauthenticate(credential)
+                .addOnSuccessListener(aVoid ->
+                        user.updatePassword(newPassword)
+                                .addOnSuccessListener(v -> callback.onSuccess())
+                                .addOnFailureListener(e -> callback.onError(e.getMessage()))
+                )
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 }
