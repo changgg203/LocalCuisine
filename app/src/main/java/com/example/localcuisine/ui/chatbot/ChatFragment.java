@@ -46,7 +46,7 @@ public class ChatFragment extends Fragment {
 
         MaterialToolbar toolbar = view.findViewById(R.id.toolbarChat);
         // Set header title like the widget
-        toolbar.setTitle("🤖 Trợ lý ẩm thực AI");
+        toolbar.setTitle("Bếp trưởng của Local Cuisine");
 
         // Hide activity FAB while full-screen chat is shown
         View hostFab = requireActivity().findViewById(R.id.fab_chat);
