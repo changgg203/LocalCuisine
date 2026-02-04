@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ public class AdminFoodListFragment extends Fragment {
     private ProgressBar progressBar;
     private FloatingActionButton fabAdd;
     private AdminFoodAdapter adapter;
+    private TextView tvTitle;
 
     // =====================
     // Lifecycle
@@ -79,9 +81,14 @@ public class AdminFoodListFragment extends Fragment {
     // =====================
 
     private void bindViews(@NonNull View v) {
+        tvTitle = v.findViewById(R.id.tvTitle);
         rvFoods = v.findViewById(R.id.rvFoods);
         progressBar = v.findViewById(R.id.progressBar);
         fabAdd = v.findViewById(R.id.fabAddFood);
+
+        if (tvTitle != null) {
+            tvTitle.setText(UiTextProvider.get(UiTextKey.ADMIN_MANAGE_FOODS));
+        }
     }
 
     private void setupRecyclerView() {

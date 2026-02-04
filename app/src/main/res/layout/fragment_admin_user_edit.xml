@@ -41,12 +41,14 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtPhone"
+                android:hint="Số điện thoại"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilBio"
+            android:hint="Giới thiệu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp">
@@ -61,7 +63,7 @@
             android:id="@+id/chkIsAdmin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Is Admin"
+            android:text="Quản trị hệ thống"
             android:layout_marginTop="12dp" />
 
         <LinearLayout

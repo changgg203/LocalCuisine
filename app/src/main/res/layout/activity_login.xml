@@ -11,7 +11,7 @@
         android:id="@+id/imgLoginLogo"
         android:layout_width="wrap_content"
         android:layout_height="64dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:contentDescription=""
         android:scaleType="fitCenter"
         android:src="@drawable/local_cuisine_full_logo" />
@@ -20,7 +20,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="30dp"
         android:text="Đăng nhập"
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Email"
+        android:hint="Nhập email"
         android:inputType="textEmailAddress" />
 
     <!-- PASSWORD -->

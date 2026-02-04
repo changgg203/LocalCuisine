@@ -40,6 +40,7 @@ public class AdminUserListFragment extends Fragment {
     private View errorContainer;
     private TextView tvError;
     private Button btnRetry;
+    private TextView tvTitle;
 
     @Nullable
     @Override
@@ -49,9 +50,14 @@ public class AdminUserListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        tvTitle = view.findViewById(R.id.tvTitle);
         rvUsers = view.findViewById(R.id.rvUsers);
         progressBar = view.findViewById(R.id.progressBar);
         fabAdd = view.findViewById(R.id.fabAddUser);
+
+        if (tvTitle != null) {
+            tvTitle.setText(UiTextProvider.get(UiTextKey.ADMIN_MANAGE_USERS));
+        }
 
         adapter = new AdminUserAdapter(
                 users,

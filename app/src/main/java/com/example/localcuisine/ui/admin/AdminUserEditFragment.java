@@ -140,17 +140,9 @@ public class AdminUserEditFragment extends Fragment {
     private void close() {
         if (!isAdded()) return;
 
-        Fragment parent = requireParentFragment();
+        requireParentFragment().getChildFragmentManager().popBackStack();
 
-        // Sau khi thêm / sửa user, cập nhật lại danh sách ngay từ cache
-        // để AdminUserListFragment hiển thị dữ liệu mới.
-        if (parent instanceof AdminUserListFragment) {
-            ((AdminUserListFragment) parent).refreshFromCache();
-        }
-
-        parent.getChildFragmentManager().popBackStack();
-
-        View root = parent.getView();
+        View root = requireParentFragment().getView();
         if (root != null) {
             root.findViewById(R.id.admin_edit_container).setVisibility(View.GONE);
             root.findViewById(R.id.admin_list_container).setVisibility(View.VISIBLE);

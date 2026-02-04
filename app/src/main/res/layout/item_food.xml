@@ -55,7 +55,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:paddingTop="2dp"
-                android:text="Phù hợp buổi sáng • Món dễ ăn"
+                android:text="Phù hợp buổi sáng • Món ăn"
                 android:textColor="#DDDDDD"
                 android:textSize="12sp" />
 
