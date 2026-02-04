@@ -1,0 +1,12 @@
+// ============================================================
+// CÁCH 1: Dùng custom claim (cần chạy set-admin-claim.js)
+// ============================================================
+// allow list: if request.auth.token.admin == true;
+
+// ============================================================
+// CÁCH 2: Dùng isAdmin trong Firestore (dễ hơn - dùng file firestore.rules ở root)
+// ============================================================
+// allow list: if get(.../users/$(request.auth.uid)).data.isAdmin == true;
+//
+// Để set admin: Vào Firebase Console -> Firestore -> users -> chọn doc của bạn
+// -> Thêm/sửa field isAdmin = true

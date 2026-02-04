@@ -329,11 +329,18 @@ public class AdminFoodEditFragment extends Fragment {
     private void close() {
         if (!isAdded()) return;
 
-        requireParentFragment()
-                .getChildFragmentManager()
+        Fragment parent = requireParentFragment();
+
+        // Cập nhật lại list từ cache để món mới / món chỉnh sửa
+        // hiển thị ngay khi quay lại màn hình danh sách.
+        if (parent instanceof AdminFoodListFragment) {
+            ((AdminFoodListFragment) parent).refreshFromCache();
+        }
+
+        parent.getChildFragmentManager()
                 .popBackStack();
 
-        View root = requireParentFragment().getView();
+        View root = parent.getView();
         if (root != null) {
             root.findViewById(R.id.admin_edit_container)
                     .setVisibility(View.GONE);

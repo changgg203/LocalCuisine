@@ -128,6 +128,20 @@ public class AdminFoodListFragment extends Fragment {
         });
     }
 
+    /**
+     * Gọi từ AdminFoodEditFragment sau khi thêm / sửa món
+     * để list cập nhật ngay từ cache hiện tại trong AdminFoodRepository
+     * mà không cần người dùng bấm nút reload hay mở lại màn hình.
+     */
+    public void refreshFromCache() {
+        if (!isAdded()) return;
+        foods.clear();
+        foods.addAll(repo.getAllCached());
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     // =====================
     // Navigation
     // =====================

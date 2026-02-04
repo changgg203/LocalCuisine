@@ -8,6 +8,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * AuthRepository
@@ -43,14 +49,8 @@ import com.google.firebase.auth.EmailAuthProvider;
  */
 public class AuthRepository {
 
-    /**
-     * FirebaseAuth instance để thực hiện xác thực
-     */
     private final FirebaseAuth firebaseAuth;
-
-    /**
-     * SessionStore dùng để lưu trạng thái đăng nhập cục bộ
-     */
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final SessionStore sessionManager;
 
     /**
@@ -82,6 +82,7 @@ public class AuthRepository {
                     FirebaseUser user = result.getUser();
                     if (user != null) {
                         sessionManager.saveUser(user.getUid());
+                        createInitialUserDoc(user.getUid(), user.getEmail());
                         callback.onSuccess(user.getUid());
                     }
                 })
@@ -133,13 +134,23 @@ public class AuthRepository {
     }
 
 
-    /**
-     * Kiểm tra trạng thái đăng nhập hiện tại
-     *
-     * @return true nếu đã đăng nhập, false nếu chưa
-     */
     public boolean isLoggedIn() {
         return firebaseAuth.getCurrentUser() != null;
+    }
+
+    /**
+     * Tạo document users/{uid} lần đầu khi đăng ký (để admin list users hoạt động).
+     */
+    private void createInitialUserDoc(String uid, String email) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", email != null ? email : "");
+        data.put("displayName", "");
+        data.put("isAdmin", false);
+        data.put("updatedAt", FieldValue.serverTimestamp());
+        db.collection("users")
+                .document(uid)
+                .set(data, SetOptions.merge())
+                .addOnFailureListener(e -> android.util.Log.e("AuthRepository", "createInitialUserDoc failed", e));
     }
 
 

@@ -138,7 +138,14 @@ public class UiTextProvider {
         vi.put(UiTextKey.ADMIN_IMAGE_LABEL, "Ảnh món ăn");
         vi.put(UiTextKey.ADMIN_FOOD_TYPE_LABEL, "Phân loại món");
         vi.put(UiTextKey.ADMIN_REGION_LABEL, "Khu vực");
-
+        vi.put(UiTextKey.ADMIN_MANAGE_FOODS, "Quản lý món");
+        vi.put(UiTextKey.ADMIN_MANAGE_USERS, "Quản lý người dùng");
+        vi.put(UiTextKey.ADMIN_USER_NAME_REQUIRED, "Vui lòng nhập tên người dùng");
+        vi.put(UiTextKey.ADMIN_USER_EMAIL_REQUIRED, "Vui lòng nhập email");
+        vi.put(UiTextKey.ADMIN_USER_ADD_SUCCESS, "Đã thêm người dùng");
+        vi.put(UiTextKey.ADMIN_USER_UPDATE_SUCCESS, "Đã cập nhật người dùng");
+        vi.put(UiTextKey.ADMIN_USER_DELETE_SUCCESS, "Đã xoá người dùng");
+        vi.put(UiTextKey.ADMIN_USER_DELETE_ERROR, "Không thể xoá người dùng");
 
         Map<UiTextKey, String> en = new HashMap<>();
         en.put(UiTextKey.APP_NAME, "Local Cuisine");
@@ -148,9 +155,16 @@ public class UiTextProvider {
         en.put(UiTextKey.SEARCH_EMPTY, "No food found");
         en.put(UiTextKey.FAVORITE_TITLE, "Favorites");
         en.put(UiTextKey.ERROR_COMMON, "Something went wrong");
+        en.put(UiTextKey.PROFILE_TITLE, "Profile");
+
+        // Language & logout
         en.put(UiTextKey.LANG_SELECT_TITLE, "Select language");
         en.put(UiTextKey.LANG_VI, "Vietnamese");
         en.put(UiTextKey.LANG_EN, "English");
+        en.put(UiTextKey.LANG_DIALOG_TITLE, "Change language");
+        en.put(UiTextKey.LANG_DIALOG_MESSAGE, "This feature will be updated later.");
+        en.put(UiTextKey.LANG_DIALOG_OK, "OK");
+
         en.put(UiTextKey.PROFILE_EDIT, "Edit profile");
         en.put(UiTextKey.PROFILE_CHANGE_LANGUAGE, "Language");
         en.put(UiTextKey.PROFILE_CHANGE_PASSWORD, "Change Password");
@@ -170,6 +184,17 @@ public class UiTextProvider {
         en.put(UiTextKey.EDIT_PROFILE_HINT_EMAIL, "Email");
         en.put(UiTextKey.EDIT_PROFILE_HINT_PHONE, "Phone number");
         en.put(UiTextKey.EDIT_PROFILE_HINT_BIO, "Short bio");
+
+        // Change password screen
+        en.put(UiTextKey.CHANGE_PASSWORD_TITLE, "Change password");
+        en.put(UiTextKey.CHANGE_PASSWORD_CURRENT_HINT, "Current password");
+        en.put(UiTextKey.CHANGE_PASSWORD_NEW_HINT, "New password");
+        en.put(UiTextKey.CHANGE_PASSWORD_CONFIRM_HINT, "Confirm new password");
+        en.put(UiTextKey.CHANGE_PASSWORD_SAVE, "Save");
+        en.put(UiTextKey.CHANGE_PASSWORD_SUCCESS, "Password changed successfully");
+        en.put(UiTextKey.CHANGE_PASSWORD_ERROR, "Failed to change password");
+        en.put(UiTextKey.CHANGE_PASSWORD_MISMATCH, "New passwords do not match");
+
         en.put(UiTextKey.HOME_SUBTITLE, "Explore Vietnamese food");
         en.put(UiTextKey.HOME_SEARCH_HINT, "Search food...");
         en.put(UiTextKey.DETAIL_RATE_HINT, "Tap to rate");
@@ -253,6 +278,14 @@ public class UiTextProvider {
         en.put(UiTextKey.ADMIN_IMAGE_LABEL, "Food image");
         en.put(UiTextKey.ADMIN_FOOD_TYPE_LABEL, "Food type");
         en.put(UiTextKey.ADMIN_REGION_LABEL, "Region");
+        en.put(UiTextKey.ADMIN_MANAGE_FOODS, "Manage foods");
+        en.put(UiTextKey.ADMIN_MANAGE_USERS, "Manage users");
+        en.put(UiTextKey.ADMIN_USER_NAME_REQUIRED, "Please enter user name");
+        en.put(UiTextKey.ADMIN_USER_EMAIL_REQUIRED, "Please enter email");
+        en.put(UiTextKey.ADMIN_USER_ADD_SUCCESS, "User added");
+        en.put(UiTextKey.ADMIN_USER_UPDATE_SUCCESS, "User updated");
+        en.put(UiTextKey.ADMIN_USER_DELETE_SUCCESS, "User deleted");
+        en.put(UiTextKey.ADMIN_USER_DELETE_ERROR, "Failed to delete user");
 
 
         DATA.put("vi", vi);
